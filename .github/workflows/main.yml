@@ -11,25 +11,34 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # A build futtató környezete (Linux)
 
-    steps:
-      - name: Checkout code # 1. Lépés: Kód letöltése a repositoryból
-        uses: actions/checkout@v3 # Használja a GitHub Action "checkout"-ot
+    # IDE ADD HOZZÁ EZT A BLOKKOT:
+    permissions:
+      contents: write # Ennek engedélyeznie kell a GITHUB_TOKEN-nek az írási jogot a repositoryhoz.
 
-      - name: Setup Node.js # 2. Lépés: Node.js környezet beállítása
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Ajánlott: Használd a projekt Node.js verzióját
+          node-version: '18' # Vagy a projekt Node.js verziója
 
-      - name: Install dependencies # 3. Lépés: Függőségek telepítése
-        run: npm install # Futtatja az npm install parancsot
+      - name: Install dependencies
+        run: npm install
 
-      - name: Build project # 4. Lépés: Projekt buildelése (létrehozza a 'dist' mappát)
-        run: npm run build # Futtatja a 'build' szkriptet a package.json-ból
+      - name: Build project # Ez a lépés hozza létre a 'dist' mappát
+        run: npm run build
 
-      - name: Deploy to GitHub Pages # 5. Lépés: Deployolás GitHub Pages-re
-        uses: peaceiris/actions-gh-pages@v3 # Harmadik féltől származó Action a deployhoz
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub által generált automatikus token
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist # A buildelt fájlok mappája
-          publish_branch: gh-pages # A branch, ahová a GitHub Pages fogja feltölteni a fájlokat
-                                   # Ha ez a branch nem létezik, az Action létrehozza.
+          publish_branch: gh-pages
+          # allow_empty_commit: false # Ezt hagyd defaulton vagy távolítsd el, ha nincs explicit ok rá
+          # keep_files: false # Ezek is defaulton vannak
+          # force_orphan: false # És ezek is
+          # enable_jekyll: false
+          # disable_nojekyll: false
+          # exclude_assets: .github
