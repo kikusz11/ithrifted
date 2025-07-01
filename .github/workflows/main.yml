@@ -11,7 +11,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # A build futtató környezete (Linux)
 
-    # IDE ADD HOZZÁ EZT A BLOKKOT:
+    # IDE ADD HOZZÁ EZT A BLOKKOT, HA MÉG NINCS:
     permissions:
       contents: write # Ennek engedélyeznie kell a GITHUB_TOKEN-nek az írási jogot a repositoryhoz.
 
@@ -29,6 +29,10 @@ jobs:
 
       - name: Build project # Ez a lépés hozza létre a 'dist' mappát
         run: npm run build
+        # IDE VAN A JAVÍTÁS: Környezeti változók átadása a build lépésnek
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
