@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import HeroStrip from '../components/HeroStrip';
 
 // Az interfész a Drop objektum típusát definiálja
 interface Drop {
@@ -185,10 +186,15 @@ export default function HomePage() {
           <button 
             onClick={handleGoToShop} 
             disabled={!isDropActive}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed mb-12"
           >
             Legújabb Dropok
           </button>
+          
+          {/* HeroStrip komponens beillesztése */}
+          <div className="mt-8">
+            <HeroStrip />
+          </div>
         </div>
       </section>
       

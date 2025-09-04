@@ -9,9 +9,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Jogosultság ellenőrzése...</div>;
   }
 
-  // --- A JAVÍTÁS LÉNYEGE ---
-  // Mostantól a Supabase beépített meta-adataiban keressük a "role" kulcsot.
-  // Ez sokkal megbízhatóbb, mint külön adatbázis-lekérdezést indítani.
+
   const isAdmin = user?.user_metadata?.role === 'admin';
 
   // Ha a felhasználó nincs bejelentkezve VAGY nem admin, átirányítjuk a főoldalra.
