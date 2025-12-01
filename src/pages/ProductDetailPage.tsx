@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../contexts/CartContext';
+import { X, ZoomIn, ZoomOut } from 'lucide-react';
 
 // Típusdefiníció a termék objektumhoz
 interface Product {
@@ -18,13 +19,39 @@ interface Product {
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   console.log("useParams:", id);
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // useCart hook használata
   const { addToCart } = useCart();
+
+  // Image Zoom State
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+
+  const openModal = (image: string) => {
+    setSelectedImage(image);
+    setZoom(1);
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+    setZoom(1);
+    document.body.style.overflow = 'unset';
+  };
+
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setZoom(prev => Math.min(prev + 0.5, 3)); // Max zoom 3x
+  };
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setZoom(prev => Math.max(prev - 0.5, 1)); // Min zoom 1x
+  };
 
   useEffect(() => {
     async function fetchProduct() {
@@ -43,7 +70,7 @@ export default function ProductDetailPage() {
           .single();
 
         if (error) throw error;
-        
+
         setProduct(data);
       } catch (err: any) {
         setError("A termék betöltése sikertelen: " + err.message);
@@ -63,7 +90,7 @@ export default function ProductDetailPage() {
         price: product.price,
         image: product.image_url
       });
-      
+
       // Sikeres hozzáadás visszajelzés
       alert(`${product.name} hozzáadva a kosárhoz!`);
     }
@@ -96,11 +123,11 @@ export default function ProductDetailPage() {
         <div className="w-1/2 overflow-y-auto max-h-screen">
           <div className="space-y-2 p-4">
             {images.map((image, index) => (
-              <div key={index} className="w-full">
-                <img 
-                  src={image} 
+              <div key={index} className="w-full cursor-pointer" onClick={() => openModal(image)}>
+                <img
+                  src={image}
                   alt={`${product.name} - ${index + 1}`}
-                  className="w-full h-auto object-cover rounded-lg shadow-lg"
+                  className="w-full h-auto object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
                 />
               </div>
             ))}
@@ -129,7 +156,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Kosárba gomb */}
-            <button 
+            <button
               onClick={handleAddToCart}
               className="w-full bg-black hover:bg-gray-800 text-white font-medium py-4 px-6 text-sm tracking-wide transition-colors duration-200 mb-8"
             >
@@ -144,7 +171,7 @@ export default function ProductDetailPage() {
                   <span className="text-gray-400">+</span>
                 </button>
               </div>
-              
+
               <div className="border-t border-gray-700 py-4">
                 <button className="flex justify-between items-center w-full text-left text-sm font-medium">
                   <span>Segítség</span>
@@ -155,6 +182,53 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Full Screen Image Modal */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex justify-center items-center overflow-hidden"
+          onClick={closeModal}
+        >
+          {/* Controls */}
+          <div className="absolute top-4 right-4 flex gap-4 z-50">
+            <button
+              onClick={handleZoomOut}
+              className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700 transition-colors"
+              title="Kicsinyítés"
+            >
+              <ZoomOut className="w-6 h-6" />
+            </button>
+            <button
+              onClick={handleZoomIn}
+              className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700 transition-colors"
+              title="Nagyítás"
+            >
+              <ZoomIn className="w-6 h-6" />
+            </button>
+            <button
+              onClick={closeModal}
+              className="p-2 bg-gray-800 rounded-full text-white hover:bg-red-600 transition-colors"
+              title="Bezárás"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Image */}
+          <div
+            className="relative transition-transform duration-200 ease-out"
+            style={{ transform: `scale(${zoom})`, cursor: zoom > 1 ? 'grab' : 'default' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={selectedImage}
+              alt="Full screen view"
+              className="max-w-full max-h-screen object-contain select-none"
+              draggable={false}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
