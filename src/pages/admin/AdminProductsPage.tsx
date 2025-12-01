@@ -1,10 +1,5 @@
 import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-// --- Supabase Client beállítása (a te adataiddal) ---
-const supabaseUrl = 'https://rvqkupuesguslnqiscgd.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cWt1cHVlc2d1c2xucWlzY2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDc2MzcsImV4cCI6MjA3MDUyMzYzN30.O6vijCRREqFyNw0gWT1YXmJi693U0JyiHOmWFBpEdK8';
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '@/lib/supabaseClient';
 
 //================================================================================
 // ProductForm Komponens (ide lett helyezve az importálási hiba miatt)
@@ -17,8 +12,8 @@ const CATEGORIES = ['póló', 'pulcsi', 'kabát', 'nadrág', 'sapka'];
 interface ProductFormData {
   name: string;
   description: string;
-  price: number | ''; 
-  stock: number | ''; 
+  price: number | '';
+  stock: number | '';
   category: string;
   gender: string;
   sizes: string[];
@@ -62,7 +57,7 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
         is_active: initialData.is_active === false ? false : true,
       });
       if (initialData.image_url) {
-          setImagePreview(initialData.image_url);
+        setImagePreview(initialData.image_url);
       }
     }
   }, [initialData]);
@@ -70,25 +65,25 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-        const { checked } = e.target as HTMLInputElement;
-        if (name === 'sizes') {
-            const currentSizes = formData.sizes || [];
-            if (checked) {
-                setFormData(prev => ({ ...prev, sizes: [...currentSizes, value] }));
-            } else {
-                setFormData(prev => ({ ...prev, sizes: currentSizes.filter(size => size !== value) }));
-            }
+      const { checked } = e.target as HTMLInputElement;
+      if (name === 'sizes') {
+        const currentSizes = formData.sizes || [];
+        if (checked) {
+          setFormData(prev => ({ ...prev, sizes: [...currentSizes, value] }));
         } else {
-             setFormData(prev => ({ ...prev, [name]: checked }));
+          setFormData(prev => ({ ...prev, sizes: currentSizes.filter(size => size !== value) }));
         }
+      } else {
+        setFormData(prev => ({ ...prev, [name]: checked }));
+      }
     } else {
-        const finalValue = (name === 'price' || name === 'stock')
-            ? (value === '' ? '' : parseFloat(value))
-            : value;
-        setFormData(prev => ({...prev, [name]: finalValue}));
+      const finalValue = (name === 'price' || name === 'stock')
+        ? (value === '' ? '' : parseFloat(value))
+        : value;
+      setFormData(prev => ({ ...prev, [name]: finalValue }));
     }
   };
-  
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -112,38 +107,38 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
       <div className="bg-gray-800 text-white p-8 rounded-lg shadow-xl w-full max-w-2xl max-h-full overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6">{initialData ? 'Termék szerkesztése' : 'Új termék létrehozása'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block font-bold mb-1">Termék neve</label>
-              <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" required />
+          <div>
+            <label htmlFor="name" className="block font-bold mb-1">Termék neve</label>
+            <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" required />
+          </div>
+          <div>
+            <label htmlFor="description" className="block font-bold mb-1">Leírás</label>
+            <textarea name="description" id="description" value={formData.description} onChange={handleChange} rows={4} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" />
+          </div>
+          <div>
+            <label className="block font-bold mb-1">Termékkép</label>
+            {imagePreview && <div className="mb-4"><img src={imagePreview} alt="Termék előnézet" className="w-full h-64 object-cover rounded-lg" /></div>}
+            <input type="file" name="image" id="image" onChange={handleImageChange} accept="image/png, image/jpeg, image/webp" className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label htmlFor="price" className="block font-bold mb-1">Ár (Ft)</label><input type="number" step="any" name="price" id="price" value={formData.price} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" required /></div>
+            <div><label htmlFor="stock" className="block font-bold mb-1">Készlet (db)</label><input type="number" name="stock" id="stock" value={formData.stock} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" required /></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label htmlFor="category" className="block font-bold mb-1">Kategória</label><select name="category" id="category" value={formData.category} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">{CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div>
+            <div><label htmlFor="gender" className="block font-bold mb-1">Nem</label><select name="gender" id="gender" value={formData.gender} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">{GENDERS.map(gen => <option key={gen} value={gen}>{gen}</option>)}</select></div>
+          </div>
+          <div>
+            <label className="block font-bold mb-2">Méretek</label>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+              {SIZES.map(size => (<label key={size} className="flex items-center justify-center p-2 bg-gray-700 border border-gray-600 rounded-md cursor-pointer has-[:checked]:bg-indigo-600 has-[:checked]:border-indigo-500 transition-colors"><input type="checkbox" name="sizes" value={size} checked={formData.sizes.includes(size)} onChange={handleChange} className="hidden" /><span>{size}</span></label>))}
             </div>
-            <div>
-              <label htmlFor="description" className="block font-bold mb-1">Leírás</label>
-              <textarea name="description" id="description" value={formData.description} onChange={handleChange} rows={4} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" />
-            </div>
-            <div>
-              <label className="block font-bold mb-1">Termékkép</label>
-              {imagePreview && <div className="mb-4"><img src={imagePreview} alt="Termék előnézet" className="w-full h-64 object-cover rounded-lg" /></div>}
-              <input type="file" name="image" id="image" onChange={handleImageChange} accept="image/png, image/jpeg, image/webp" className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"/>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><label htmlFor="price" className="block font-bold mb-1">Ár (Ft)</label><input type="number" step="any" name="price" id="price" value={formData.price} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" required /></div>
-              <div><label htmlFor="stock" className="block font-bold mb-1">Készlet (db)</label><input type="number" name="stock" id="stock" value={formData.stock} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md" required /></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label htmlFor="category" className="block font-bold mb-1">Kategória</label><select name="category" id="category" value={formData.category} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">{CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div>
-                <div><label htmlFor="gender" className="block font-bold mb-1">Nem</label><select name="gender" id="gender" value={formData.gender} onChange={handleChange} className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">{GENDERS.map(gen => <option key={gen} value={gen}>{gen}</option>)}</select></div>
-            </div>
-            <div>
-              <label className="block font-bold mb-2">Méretek</label>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
-                  {SIZES.map(size => (<label key={size} className="flex items-center justify-center p-2 bg-gray-700 border border-gray-600 rounded-md cursor-pointer has-[:checked]:bg-indigo-600 has-[:checked]:border-indigo-500 transition-colors"><input type="checkbox" name="sizes" value={size} checked={formData.sizes.includes(size)} onChange={handleChange} className="hidden" /><span>{size}</span></label>))}
-              </div>
-            </div>
-            <div className="pt-2"><label className="flex items-center"><input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 rounded" /><span className="ml-2">Aktív (Megjelenik a boltban)</span></label></div>
-            <div className="flex items-center justify-end gap-4 pt-4">
-              <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">Mégse</button>
-              <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Mentés</button>
-            </div>
+          </div>
+          <div className="pt-2"><label className="flex items-center"><input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 rounded" /><span className="ml-2">Aktív (Megjelenik a boltban)</span></label></div>
+          <div className="flex items-center justify-end gap-4 pt-4">
+            <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">Mégse</button>
+            <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Mentés</button>
+          </div>
         </form>
       </div>
     </div>
@@ -216,23 +211,23 @@ export default function AdminProductsPage() {
       alert(`Hiba a mentés során: ${err.message}`);
     }
   };
-  
+
   const handleDelete = async (productId: string) => {
     if (window.confirm('Biztosan törölni szeretnéd ezt a terméket?')) {
-        try {
-            const productToDelete = products.find(p => p.id === productId);
-            if (productToDelete && productToDelete.image_url) {
-                const fileName = productToDelete.image_url.split('/').pop();
-                if (fileName) {
-                    await supabase.storage.from('termek-kepek').remove([fileName]);
-                }
-            }
-            const { error: dbError } = await supabase.from('products').delete().eq('id', productId);
-            if (dbError) throw dbError;
-            fetchProducts();
-        } catch (err: any) {
-            alert(`Hiba a törlés során: ${err.message}`);
+      try {
+        const productToDelete = products.find(p => p.id === productId);
+        if (productToDelete && productToDelete.image_url) {
+          const fileName = productToDelete.image_url.split('/').pop();
+          if (fileName) {
+            await supabase.storage.from('termek-kepek').remove([fileName]);
+          }
         }
+        const { error: dbError } = await supabase.from('products').delete().eq('id', productId);
+        if (dbError) throw dbError;
+        fetchProducts();
+      } catch (err: any) {
+        alert(`Hiba a törlés során: ${err.message}`);
+      }
     }
   }
 
@@ -251,7 +246,7 @@ export default function AdminProductsPage() {
       </div>
 
       {showForm && (
-        <ProductForm 
+        <ProductForm
           onSubmit={handleFormSubmit}
           initialData={editingProduct}
           onClose={() => { setShowForm(false); setEditingProduct(null); }}
@@ -260,7 +255,7 @@ export default function AdminProductsPage() {
 
       {loading && <p>Termékek betöltése...</p>}
       {error && <p className="text-red-500">Hiba: {error}</p>}
-      
+
       {!loading && !error && (
         <div className="bg-gray-800 rounded-lg shadow overflow-x-auto">
           <table className="w-full text-left">
