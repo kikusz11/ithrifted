@@ -65,8 +65,8 @@ const HeroStrips = () => {
   }
 
   return (
-    <div className="relative max-w-7xl mx-auto my-8 h-96 bg-gray-50">
-      <div className="absolute inset-0 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+    <div className="relative w-fit max-w-7xl mx-auto my-8 h-96 bg-gray-50">
+      <div className="overflow-x-auto overflow-y-hidden h-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
         <div className="flex h-full w-max">
           {products.map((product, index) => (
             <div
