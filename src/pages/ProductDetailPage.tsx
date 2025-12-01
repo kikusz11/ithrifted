@@ -190,7 +190,7 @@ export default function ProductDetailPage() {
           onClick={closeModal}
         >
           {/* Controls */}
-          <div className="absolute top-4 right-4 flex gap-4 z-50">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 z-50">
             <button
               onClick={handleZoomOut}
               className="p-2 bg-gray-800 rounded-full text-white hover:bg-gray-700 transition-colors"
