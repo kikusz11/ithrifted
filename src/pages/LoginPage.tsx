@@ -20,7 +20,7 @@ export default function LoginPage() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-  
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
@@ -30,6 +30,7 @@ export default function LoginPage() {
           appearance={{ theme: ThemeSupa }}
           providers={['google', 'github']} // Opcionális: közösségi bejelentkezések
           theme="dark"
+          redirectTo={window.location.origin}
         />
       </div>
     </div>
