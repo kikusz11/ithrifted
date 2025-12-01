@@ -32,7 +32,7 @@ export default function ModernProfilePage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isEditingShipping, setIsEditingShipping] = useState(false);
   const [isEditingBilling, setIsEditingBilling] = useState(false);
@@ -41,14 +41,29 @@ export default function ModernProfilePage() {
     async function getProfile() {
       if (!user) { setLoading(false); return; }
       setLoading(true);
+      console.log('Fetching profile for user:', user.id);
       try {
-        const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (error && error.code !== 'PGRST116') { console.error('Error fetching profile:', error); }
-        else if (data) {
+        // JAVÍTÁS: Kivettük a .single()-t a hibakereséshez, és logolunk
+        const { data, error } = await supabase.from('profiles').select('*').eq('user_id', user.id);
+
+        console.log('Fetch result:', { data, error });
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+        } else if (data && data.length > 0) {
+          // Ha van találat, az elsőt használjuk
+          const profile = data[0];
           setProfileData({
-            ...data,
-            shipping_address: data.shipping_address || {},
-            billing_address: data.billing_address || {},
+            ...profile,
+            shipping_address: profile.shipping_address || {},
+            billing_address: profile.billing_address || {},
+          });
+        } else {
+          console.log('No profile found, initializing empty.');
+          // Ha nincs profil adat (pl. új user), inicializáljuk üres objektummal
+          setProfileData({
+            shipping_address: {},
+            billing_address: {},
           });
         }
       } catch (e) { console.error("Hiba a profil lekérésekor:", e); }
@@ -56,7 +71,7 @@ export default function ModernProfilePage() {
     }
     getProfile();
   }, [user]);
-  
+
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev!, [name]: value }));
@@ -67,9 +82,13 @@ export default function ModernProfilePage() {
     setLoading(true);
     const { error } = await supabase
       .from('profiles')
-      .update({ full_name: profileData.full_name, phone: profileData.phone })
-      .eq('id', user.id);
-      
+      .upsert({
+        user_id: user.id,
+        full_name: profileData.full_name,
+        phone: profileData.phone,
+        updated_at: new Date()
+      }, { onConflict: 'user_id' }); // JAVÍTÁS: onConflict megadása
+
     if (error) { alert('Hiba a profil mentésekor: ' + error.message); }
     else { setIsEditingProfile(false); }
     setLoading(false);
@@ -77,20 +96,32 @@ export default function ModernProfilePage() {
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>, addressType: 'shipping_address' | 'billing_address') => {
     const { name, value } = e.target;
-    setProfileData(prev => ({
-      ...prev!,
-      [addressType]: { ...prev![addressType], [name]: value },
-    }));
+    setProfileData(prev => {
+      if (!prev) return { [addressType]: { [name]: value } };
+      return {
+        ...prev,
+        [addressType]: { ...prev[addressType], [name]: value },
+      };
+    });
   };
 
   const handleUpdateAddress = async (addressTypeToUpdate: 'shipping_address' | 'billing_address') => {
     if (!user || !profileData) return;
     setLoading(true);
-    const { error } = await supabase
+    console.log('Updating address:', addressTypeToUpdate, profileData[addressTypeToUpdate]);
+
+    // Használjunk upsert-et, hogy ha nincs sor, akkor létrehozza
+    const { error, data } = await supabase
       .from('profiles')
-      .update({ [addressTypeToUpdate]: profileData[addressTypeToUpdate] })
-      .eq('id', user.id);
-      
+      .upsert({
+        user_id: user.id,
+        [addressTypeToUpdate]: profileData[addressTypeToUpdate],
+        updated_at: new Date()
+      }, { onConflict: 'user_id' }) // JAVÍTÁS: onConflict megadása
+      .select();
+
+    console.log('Update result:', { data, error });
+
     if (error) { alert('Hiba a cím mentésekor: ' + error.message); }
     else {
       if (addressTypeToUpdate === 'shipping_address') setIsEditingShipping(false);
@@ -98,13 +129,13 @@ export default function ModernProfilePage() {
     }
     setLoading(false);
   };
-  
+
   // 2. JAVÍTÁS: A cím másolása függvény most már ment is az adatbázisba.
   const handleCopyAddress = async () => {
     if (!user || !profileData?.shipping_address) return;
 
     const addressToCopy = { ...profileData.shipping_address };
-    
+
     // 1. Frissítjük a képernyőt (azonnali visszajelzés)
     setProfileData(prev => ({ ...prev!, billing_address: addressToCopy }));
 
@@ -112,15 +143,18 @@ export default function ModernProfilePage() {
     setLoading(true);
     const { error } = await supabase
       .from('profiles')
-      .update({ billing_address: addressToCopy })
-      .eq('id', user.id);
-      
+      .upsert({
+        user_id: user.id,
+        billing_address: addressToCopy,
+        updated_at: new Date()
+      }, { onConflict: 'user_id' }); // JAVÍTÁS: onConflict megadása
+
     if (error) {
       alert('Hiba a cím másolásakor: ' + error.message);
     }
     setLoading(false);
   };
-  
+
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0 || !user) return;
     const file = event.target.files[0];
@@ -141,7 +175,7 @@ export default function ModernProfilePage() {
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: `${publicURL}?t=${new Date().getTime()}` })
-      .eq('id', user.id);
+      .eq('user_id', user.id); // JAVÍTÁS: user_id alapján frissítünk
     if (updateError) {
       alert('Error updating avatar URL: ' + updateError.message);
     } else {
@@ -175,11 +209,11 @@ export default function ModernProfilePage() {
                     <h3 className='text-xl font-bold'>Profil szerkesztése</h3>
                     <div>
                       <label className="block text-sm font-medium text-gray-400">Teljes név</label>
-                      <input type="text" name="full_name" value={profileData?.full_name || ''} onChange={handleProfileChange} className="mt-1 w-full bg-white/5 border border-white/10 rounded-md py-2 px-3 text-white"/>
+                      <input type="text" name="full_name" value={profileData?.full_name || ''} onChange={handleProfileChange} className="mt-1 w-full bg-white/5 border border-white/10 rounded-md py-2 px-3 text-white" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-400">Telefonszám</label>
-                      <input type="tel" name="phone" value={profileData?.phone || ''} onChange={handleProfileChange} className="mt-1 w-full bg-white/5 border border-white/10 rounded-md py-2 px-3 text-white"/>
+                      <input type="tel" name="phone" value={profileData?.phone || ''} onChange={handleProfileChange} className="mt-1 w-full bg-white/5 border border-white/10 rounded-md py-2 px-3 text-white" />
                     </div>
                     <div className='flex gap-4 pt-4'>
                       <ModernButton onClick={() => setIsEditingProfile(false)} variant="secondary" className='w-full'>Mégse</ModernButton>
@@ -189,9 +223,9 @@ export default function ModernProfilePage() {
                 ) : (
                   <>
                     <div className="absolute top-6 right-6">
-                       <ModernButton onClick={() => setIsEditingProfile(true)} variant="ghost" size="sm" className="text-blue-400">Szerkesztés</ModernButton>
+                      <ModernButton onClick={() => setIsEditingProfile(true)} variant="ghost" size="sm" className="text-blue-400">Szerkesztés</ModernButton>
                     </div>
-                    <AvatarUpload avatarUrl={profileData?.avatar_url} onUpload={handleAvatarUpload} uploading={uploading} size="xl"/>
+                    <AvatarUpload avatarUrl={profileData?.avatar_url} onUpload={handleAvatarUpload} uploading={uploading} size="xl" />
                     {uploading && (<p>Feltöltés...</p>)}
                     <div className="mt-6 space-y-2">
                       <h2 className="text-3xl font-bold ...">{profileData?.full_name || 'Your Name'}</h2>
@@ -208,15 +242,15 @@ export default function ModernProfilePage() {
                 )}
               </GlassCard>
             </div>
-            
+
             <div className="lg:col-span-8 space-y-8">
               {isEditingShipping ? (
-                <AddressForm address={profileData?.shipping_address} title="Szállítási Cím" onChange={handleAddressChange} onSave={(e) => { e.preventDefault(); handleUpdateAddress('shipping_address'); }} onCancel={() => setIsEditingShipping(false)} addressType="shipping_address"/>
+                <AddressForm address={profileData?.shipping_address} title="Szállítási Cím" onChange={handleAddressChange} onSave={(e) => { e.preventDefault(); handleUpdateAddress('shipping_address'); }} onCancel={() => setIsEditingShipping(false)} addressType="shipping_address" />
               ) : (
                 <AddressCard address={profileData?.shipping_address} title="Szállítási Cím" onEdit={() => setIsEditingShipping(true)} />
               )}
               {isEditingBilling ? (
-                <AddressForm address={profileData?.billing_address} title="Számlázási Cím" onChange={handleAddressChange} onSave={(e) => { e.preventDefault(); handleUpdateAddress('billing_address'); }} onCancel={() => setIsEditingBilling(false)} addressType="billing_address"/>
+                <AddressForm address={profileData?.billing_address} title="Számlázási Cím" onChange={handleAddressChange} onSave={(e) => { e.preventDefault(); handleUpdateAddress('billing_address'); }} onCancel={() => setIsEditingBilling(false)} addressType="billing_address" />
               ) : (
                 <AddressCard address={profileData?.billing_address} title="Számlázási Cím" onEdit={() => setIsEditingBilling(true)} onCopyAddress={handleCopyAddress} />
               )}

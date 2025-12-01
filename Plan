@@ -1,0 +1,23 @@
+Update HeroStrip to Use Real Products
+The user wants the "thin images" in the hero section (
+HeroStrip
+ component) to display real products from the shop instead of mock data.
+
+Proposed Changes
+HeroStrip.tsx
+Imports:
+Import supabase from ../lib/supabaseClient.
+Import useNavigate from react-router-dom.
+Cleanup:
+Remove the mock supabase object and mockData.
+Logic:
+Use the real supabase client to fetch the latest 25 products.
+Update 
+handleProductClick
+ to use navigate('/product/' + productId).
+Update the "shop" button to navigate to /shop.
+Verification Plan
+Manual Verification (Local)
+Check the hero section -> Should show images of real products from the database.
+Click on a strip image -> Should navigate to that product's detail page.
+Click on the "shop" button -> Should navigate to /shop.

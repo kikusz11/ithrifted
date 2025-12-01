@@ -56,10 +56,17 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
   };
 
   const handleGoogleLogin = async () => {
+    // JAVÍTÁS: Fejlesztői módban mindig a localhost-ra irányítunk
+    const redirectUrl = import.meta.env.DEV
+      ? 'http://localhost:5173'
+      : window.location.origin;
+
+    console.log('Google Login Redirect URL:', redirectUrl);
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin
+        redirectTo: redirectUrl
       }
     });
   };

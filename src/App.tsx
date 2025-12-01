@@ -5,17 +5,19 @@ import Header from './components/Header.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import AdminLayout from './components/admin/AdminLayout.tsx';
 import { CartProvider } from './contexts/CartContext.tsx';
- 
+
 // Oldalak
 import HomePage from './pages/HomePage.tsx';
 import ModernProfilePage from './pages/ModernProfilePage.tsx';
 import CartPage from './pages/CartPage.jsx';
-import CheckoutPage from './pages/CheckoutPage.jsx';
+import CheckoutPage from './pages/CheckoutPage.tsx';
 import AdminProductsPage from './pages/admin/AdminProductsPage.tsx';
 import AdminDashboard from './pages/admin/AdminDashboard.tsx';
 import AdminDropsPage from './pages/admin/AdminDropsPage.tsx';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage.tsx';
 import ShopPage from './pages/ShopPage.tsx';
 import ProductDetailPage from './pages/ProductDetailPage.tsx';
+import UserOrdersPage from './pages/UserOrdersPage.tsx';
 
 // Placeholder komponens
 const PlaceholderPage = ({ title }: { title: string }) => {
@@ -34,7 +36,7 @@ function App() {
                   <Route path="/" element={<AdminDashboard />} />
                   <Route path="/drops" element={<AdminDropsPage />} />
                   <Route path="/products" element={<AdminProductsPage />} />
-                  <Route path="/orders" element={<PlaceholderPage title="Rendelés Kezelés" />} />
+                  <Route path="/orders" element={<AdminOrdersPage />} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>
@@ -51,7 +53,7 @@ function App() {
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/shop" element={<ShopPage />} />
                   <Route path="/product/:id" element={<ProductDetailPage />} />
-                  <Route path="/orders" element={<PlaceholderPage title="Rendeléseim" />} />
+                  <Route path="/orders" element={<UserOrdersPage />} />
                 </Routes>
               </main>
             </>
