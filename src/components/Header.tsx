@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import LoginModal from './LoginModal';
 import { useCart } from '../contexts/CartContext';
 import logo from '../assets/logo.png';
-import { Search } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 
 // Ikon a kosárhoz
 const CartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
@@ -16,6 +16,7 @@ export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Live Search State
@@ -125,6 +126,16 @@ export default function Header() {
               i_Thrifted_
             </span>
           </Link>
+
+
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
           {/* Search Bar */}
           <form ref={searchRef} onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
@@ -260,8 +271,60 @@ export default function Header() {
             )}
           </div>
         </div>
-      </header>
-      {!user && isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />}
+
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-gray-900 border-b border-white/10 shadow-xl p-4 animate-fadeIn">
+            <form onSubmit={(e) => { handleSearch(e); setIsMobileMenuOpen(false); }} className="relative mb-4">
+              <input
+                type="text"
+                placeholder="Keresés..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/10 border border-white/20 rounded-lg py-2 pl-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500"
+              />
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Search className="w-5 h-5" />
+              </button>
+            </form>
+
+            <div className="flex flex-col gap-2">
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Főoldal</Link>
+              <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Bolt</Link>
+
+              {!user ? (
+                <button
+                  onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }}
+                  className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg text-center"
+                >
+                  Bejelentkezés
+                </button>
+              ) : (
+                <>
+                  <div className="border-t border-white/10 my-2"></div>
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Profilom</Link>
+                  <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Rendeléseim</Link>
+                  <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400 flex justify-between items-center">
+                    Kosár
+                    {totalItemsInCart > 0 && (
+                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        {totalItemsInCart}
+                      </span>
+                    )}
+                  </Link>
+                  {profile?.is_admin && (
+                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-indigo-400 font-bold">Admin Felület</Link>
+                  )}
+                  <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="w-full text-left py-2 text-red-400 hover:text-red-300">Kijelentkezés</button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </header >
+      {!user && isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />
+      }
     </>
   );
 }

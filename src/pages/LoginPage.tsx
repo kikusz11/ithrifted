@@ -9,7 +9,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
         // Sikeres bejelentkezés után irányítsd át a főoldalra
         // A böngésző újratöltése után a useAuth hook már az új adatokat látja

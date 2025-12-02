@@ -18,7 +18,7 @@ const HeroStrips = () => {
     const fetchLatestProducts = async () => {
       setLoading(true);
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('products')
         .select('id, name, image_url')
         .not('image_url', 'is', null)

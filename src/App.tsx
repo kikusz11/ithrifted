@@ -15,6 +15,7 @@ import AdminProductsPage from './pages/admin/AdminProductsPage.tsx';
 import AdminDashboard from './pages/admin/AdminDashboard.tsx';
 import AdminDropsPage from './pages/admin/AdminDropsPage.tsx';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage.tsx';
+import AdminUsersPage from './pages/admin/AdminUsersPage.tsx';
 import ShopPage from './pages/ShopPage.tsx';
 import ProductDetailPage from './pages/ProductDetailPage.tsx';
 import UserOrdersPage from './pages/UserOrdersPage.tsx';
@@ -24,9 +25,13 @@ const PlaceholderPage = ({ title }: { title: string }) => {
   return <div className="p-8 text-3xl font-bold">{title}</div>;
 };
 
+import { Toaster } from 'sonner';
+import Footer from './components/Footer';
+
 function App() {
   return (
     <CartProvider>
+      <Toaster position="bottom-right" richColors />
       <BrowserRouter>
         <Routes>
           <Route path="/admin/*" element={
@@ -37,15 +42,16 @@ function App() {
                   <Route path="/drops" element={<AdminDropsPage />} />
                   <Route path="/products" element={<AdminProductsPage />} />
                   <Route path="/orders" element={<AdminOrdersPage />} />
+                  <Route path="/users" element={<AdminUsersPage />} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/*" element={
-            <>
+            <div className="flex flex-col min-h-screen bg-gray-900 text-white">
               <Header />
-              <main className="bg-gray-900 text-white min-h-screen pt-24">
+              <main className="flex-grow pt-24">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/profile" element={<ModernProfilePage />} />
@@ -56,7 +62,8 @@ function App() {
                   <Route path="/orders" element={<UserOrdersPage />} />
                 </Routes>
               </main>
-            </>
+              <Footer />
+            </div>
           } />
         </Routes>
       </BrowserRouter>

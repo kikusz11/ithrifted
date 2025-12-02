@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../contexts/CartContext';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Típusdefiníció a termék objektumhoz
 interface Product {
@@ -92,7 +93,7 @@ export default function ProductDetailPage() {
       });
 
       // Sikeres hozzáadás visszajelzés
-      alert(`${product.name} hozzáadva a kosárhoz!`);
+      toast.success(`${product.name} hozzáadva a kosárhoz!`);
     }
   };
 

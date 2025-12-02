@@ -1,18 +1,67 @@
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabaseClient';
 import { Droplets, ShoppingBag, ShoppingCart, Users, LucideProps } from 'lucide-react';
-import React from 'react';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [stats, setStats] = useState({
+    newOrders: 0,
+    activeDrops: 0,
+    totalProducts: 0,
+    totalUsers: 0,
+    totalUnreadedMessages: 0,
+    totalOrders: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
-  const stats = {
-    newOrders: 12,
-    activeDrops: 2,
-    totalProducts: 150,
-    totalUsers: 48,
-    totalUnreadedMessages: 5,
-    totalOrders: 200,
-  };
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        // Fetch new orders (pending)
+        const { count: newOrders } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        // Fetch active drops
+        const { count: activeDrops } = await supabase
+          .from('drops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true);
+
+        // Fetch total products
+        const { count: totalProducts } = await supabase
+          .from('products')
+          .select('*', { count: 'exact', head: true });
+
+        // Fetch total users (profiles)
+        const { count: totalUsers } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+
+        // Fetch total orders
+        const { count: totalOrders } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true });
+
+        setStats({
+          newOrders: newOrders || 0,
+          activeDrops: activeDrops || 0,
+          totalProducts: totalProducts || 0,
+          totalUsers: totalUsers || 0,
+          totalUnreadedMessages: 0, // Placeholder until messages system is implemented
+          totalOrders: totalOrders || 0,
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStats();
+  }, []);
 
   return (
     // Ez a fő konténer kapja meg a belső térközt
@@ -25,12 +74,12 @@ export default function AdminDashboard() {
 
       {/* Statisztikai kártyák - A grid osztályok itt vannak a wrapper div-en */}
       <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" >
-        <StatCard title="Új Rendelések" value={stats.newOrders} icon={ShoppingCart} />
-        <StatCard title="Aktív Dropok" value={stats.activeDrops} icon={Droplets} />
-        <StatCard title="Összes Termék" value={stats.totalProducts} icon={ShoppingBag} />
-        <StatCard title="Felhasználók" value={stats.totalUsers} icon={Users} />
-        <StatCard title="Olvasatlan Üzenetek" value={stats.totalUnreadedMessages} icon={Users} />
-        <StatCard title="Összes eddigi rendelés" value={stats.totalOrders} icon={Users} />
+        <StatCard title="Új Rendelések" value={loading ? '...' : stats.newOrders} icon={ShoppingCart} />
+        <StatCard title="Aktív Dropok" value={loading ? '...' : stats.activeDrops} icon={Droplets} />
+        <StatCard title="Összes Termék" value={loading ? '...' : stats.totalProducts} icon={ShoppingBag} />
+        <StatCard title="Felhasználók" value={loading ? '...' : stats.totalUsers} icon={Users} />
+        <StatCard title="Olvasatlan Üzenetek" value={loading ? '...' : stats.totalUnreadedMessages} icon={Users} />
+        <StatCard title="Összes eddigi rendelés" value={loading ? '...' : stats.totalOrders} icon={Users} />
       </div>
 
     </div>
@@ -55,4 +104,3 @@ const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
     </div>
   </div>
 );
-

@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 // Definiáljuk a kosárban lévő termék típusát
 interface CartItem {
@@ -26,7 +26,14 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Létrehozzuk a "Provider" komponenst
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   // Termék hozzáadása a kosárhoz
   const addToCart = (item: Omit<CartItem, 'quantity'>) => {
@@ -71,7 +78,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Kosár végösszegének számítása
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  
+
   const value = {
     cart,
     addToCart,
