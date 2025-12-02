@@ -65,7 +65,7 @@ export default function AdminDashboard() {
 
   return (
     // Ez a fő konténer kapja meg a belső térközt
-    <div className="grid grid-closl-1 sm:grid-cols-1 lg:grid-cols-1 gap-8 p-4 md:p-8">
+    <div className="grid grid-cols-1 gap-8 p-4 md:p-8">
       {/* Üdvözlő kártya */}
       <div className="mb-8 p-6 bg-gradient-to-br from-indigo-800 to-purple-800 rounded-xl shadow-lg">
         <h1 className="text-3xl font-bold text-white items-center justify-center text-center mb-4">Irányítópult</h1>
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Statisztikai kártyák - A grid osztályok itt vannak a wrapper div-en */}
-      <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" >
         <StatCard title="Új Rendelések" value={loading ? '...' : stats.newOrders} icon={ShoppingCart} />
         <StatCard title="Aktív Dropok" value={loading ? '...' : stats.activeDrops} icon={Droplets} />
         <StatCard title="Összes Termék" value={loading ? '...' : stats.totalProducts} icon={ShoppingBag} />

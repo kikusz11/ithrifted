@@ -83,7 +83,7 @@ const HeroStrips = () => {
                 <div
                   className="w-full h-full bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-110"
                   style={{
-                    backgroundImage: `url(${product.image_url})`,
+                    backgroundImage: `url("${product.image_url}")`,
                   }}
                 />
 

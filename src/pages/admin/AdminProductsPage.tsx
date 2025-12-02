@@ -13,7 +13,7 @@ interface ProductFormData {
   name: string;
   description: string;
   price: number | '';
-  discount_price?: number | ''; // Új mező: Akciós ár
+  sale_price?: number | ''; // Javítva: sale_price a discount_price helyett
   stock: number | '';
   category: string;
   gender: string;
@@ -33,7 +33,7 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
     name: '',
     description: '',
     price: '',
-    discount_price: '',
+    sale_price: '',
     stock: '',
     category: CATEGORIES[0],
     gender: GENDERS[0],
@@ -51,7 +51,7 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
         name: initialData.name || '',
         description: initialData.description || '',
         price: initialData.price || '',
-        discount_price: initialData.discount_price || '',
+        sale_price: initialData.sale_price || '',
         stock: initialData.stock || '',
         category: initialData.category || CATEGORIES[0],
         gender: initialData.gender || GENDERS[0],
@@ -80,7 +80,7 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
         setFormData(prev => ({ ...prev, [name]: checked }));
       }
     } else {
-      const finalValue = (name === 'price' || name === 'stock' || name === 'discount_price')
+      const finalValue = (name === 'price' || name === 'stock' || name === 'sale_price')
         ? (value === '' ? '' : parseFloat(value))
         : value;
       setFormData(prev => ({ ...prev, [name]: finalValue }));
@@ -100,7 +100,7 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
     const dataToSubmit = {
       ...formData,
       price: Number(formData.price) || 0,
-      discount_price: formData.discount_price ? Number(formData.discount_price) : null,
+      sale_price: formData.sale_price ? Number(formData.sale_price) : null,
       stock: Number(formData.stock) || 0,
     };
     onSubmit(dataToSubmit, imageFile);
@@ -156,9 +156,9 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
                 <input type="number" step="any" name="price" id="price" value={formData.price} onChange={handleChange} className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" required placeholder="0" />
               </div>
               <div>
-                <label htmlFor="discount_price" className="block text-sm font-medium text-gray-400 mb-1">Akciós ár (Ft)</label>
-                <input type="number" step="any" name="discount_price" id="discount_price" value={formData.discount_price} onChange={handleChange} className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" placeholder="Opcionális" />
-                {formData.discount_price && Number(formData.discount_price) >= Number(formData.price) && (
+                <label htmlFor="sale_price" className="block text-sm font-medium text-gray-400 mb-1">Akciós ár (Ft)</label>
+                <input type="number" step="any" name="sale_price" id="sale_price" value={formData.sale_price} onChange={handleChange} className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" placeholder="Opcionális" />
+                {formData.sale_price && Number(formData.sale_price) >= Number(formData.price) && (
                   <p className="text-red-400 text-xs mt-1">Az akciós árnak kisebbnek kell lennie az eredetinél!</p>
                 )}
               </div>
@@ -220,7 +220,6 @@ function ProductForm({ onSubmit, initialData = null, onClose }: ProductFormProps
     </div>
   );
 }
-
 
 //================================================================================
 // AdminProductsPage Komponens (a fő komponens)
@@ -344,9 +343,9 @@ export default function AdminProductsPage() {
                     <h3 className="font-bold text-lg truncate">{product.name}</h3>
                     <p className="text-gray-400 text-sm">{product.category}</p>
                     <div className="mt-1">
-                      {product.discount_price ? (
+                      {product.sale_price ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-indigo-400 font-bold">{product.discount_price.toLocaleString()} Ft</span>
+                          <span className="text-indigo-400 font-bold">{product.sale_price.toLocaleString()} Ft</span>
                           <span className="text-gray-500 text-sm line-through">{product.price.toLocaleString()} Ft</span>
                         </div>
                       ) : (
@@ -393,9 +392,9 @@ export default function AdminProductsPage() {
                     <td className="p-4 font-semibold">{product.name}</td>
                     <td className="p-4">{product.category}</td>
                     <td className="p-4">
-                      {product.discount_price ? (
+                      {product.sale_price ? (
                         <div>
-                          <span className="text-indigo-400 font-bold block">{product.discount_price.toLocaleString()} Ft</span>
+                          <span className="text-indigo-400 font-bold block">{product.sale_price.toLocaleString()} Ft</span>
                           <span className="text-gray-500 text-sm line-through">{product.price.toLocaleString()} Ft</span>
                         </div>
                       ) : (
@@ -418,4 +417,3 @@ export default function AdminProductsPage() {
     </div>
   );
 }
-

@@ -109,13 +109,8 @@ export default function ProductDetailPage() {
     return <div className="text-center p-10">A termék nem található.</div>;
   }
 
-  // Mock képek - később ezeket az adatbázisból kell betölteni
-  const images = [
-    product.image_url,
-    product.image_url,
-    product.image_url,
-    product.image_url
-  ];
+  // Képek kezelése - csak a létező képet jelenítjük meg
+  const images = product.image_url ? [product.image_url] : [];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
