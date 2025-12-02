@@ -51,8 +51,8 @@ export default function DropForm({ onSubmit, initialData = null, onClose }: Drop
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fadeIn">
-      <div className="bg-gray-800 text-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10 flex flex-col">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fadeIn" onClick={onClose}>
+      <div className="bg-gray-800 text-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10 flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-gray-800 z-10">
           <h2 className="text-2xl font-bold">{initialData ? 'Drop szerkesztése' : 'Új drop létrehozása'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg">

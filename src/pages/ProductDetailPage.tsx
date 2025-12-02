@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../contexts/CartContext';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'sonner';
+import { getAllImages, getPrimaryImage } from '../utils/productUtils';
 
 // Típusdefiníció a termék objektumhoz
 interface Product {
@@ -19,7 +20,6 @@ interface Product {
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
-  console.log("useParams:", id);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,7 +89,7 @@ export default function ProductDetailPage() {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_url
+        image: getPrimaryImage(product)
       });
 
       // Sikeres hozzáadás visszajelzés
@@ -109,8 +109,8 @@ export default function ProductDetailPage() {
     return <div className="text-center p-10">A termék nem található.</div>;
   }
 
-  // Képek kezelése - csak a létező képet jelenítjük meg
-  const images = product.image_url ? [product.image_url] : [];
+  // Képek kezelése - getAllImages használata
+  const images = getAllImages(product);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

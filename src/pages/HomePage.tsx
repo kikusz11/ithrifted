@@ -31,7 +31,7 @@ export default function HomePage() {
     async function fetchNextDrop() {
       setLoading(true);
       const now = new Date().toISOString();
-      
+
       // Először keressünk aktív dropot
       const { data: activeDrop, error: activeError } = await supabase
         .from('drops')
@@ -59,7 +59,7 @@ export default function HomePage() {
           .order('start_time', { ascending: true })
           .limit(1)
           .single();
-        
+
         if (futureDrop) {
           setNextDrop(futureDrop);
         } else if (futureError && futureError.code !== 'PGRST116') {
@@ -96,13 +96,6 @@ export default function HomePage() {
 
     return () => clearInterval(interval); // Tisztítás: a komponens elhagyásakor leállítja az interval-t
   }, [nextDrop, isDropActive]);
-  
-  // Navigálás a shop oldalra, ha a drop aktív
-  const handleGoToShop = () => {
-    if (isDropActive) {
-      navigate('/shop');
-    }
-  };
 
   // E-mail feliratkozás kezelése
   const handleSubscription = async (event: FormEvent) => {
@@ -112,24 +105,24 @@ export default function HomePage() {
     setFormError('');
 
     try {
-        const { error } = await supabase
-            .from('subscriptions') // Tegyük fel, hogy a tábla neve 'subscriptions'
-            .insert({ email: email, created_at: new Date() });
+      const { error } = await supabase
+        .from('subscriptions') // Tegyük fel, hogy a tábla neve 'subscriptions'
+        .insert({ email: email, created_at: new Date() });
 
-        if (error) {
-            // Ha az email már létezik, azt is hibaként kezeljük
-            if (error.code === '23505') { // PostgreSQL unique violation error code
-                throw new Error('Ezzel az e-mail címmel már feliratkoztak.');
-            }
-            throw error;
+      if (error) {
+        // Ha az email már létezik, azt is hibaként kezeljük
+        if (error.code === '23505') { // PostgreSQL unique violation error code
+          throw new Error('Ezzel az e-mail címmel már feliratkoztak.');
         }
+        throw error;
+      }
 
-        setFormMessage('Sikeres feliratkozás! Köszönjük!');
-        setEmail(''); // Ürítjük az input mezőt siker esetén
+      setFormMessage('Sikeres feliratkozás! Köszönjük!');
+      setEmail(''); // Ürítjük az input mezőt siker esetén
     } catch (error: any) {
-        setFormError(error.message || 'Hiba történt a feliratkozás során. Próbáld újra!');
+      setFormError(error.message || 'Hiba történt a feliratkozás során. Próbáld újra!');
     } finally {
-        setFormLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -143,12 +136,12 @@ export default function HomePage() {
       return <div className="text-xl text-indigo-200">Következő drop keresése...</div>;
     }
     if (isDropActive && nextDrop) {
-        return (
-            <div>
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">{nextDrop.name}</h1>
-                <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-12">{nextDrop.description || 'Ez a drop most aktív!'}</p>
-            </div>
-        );
+      return (
+        <div>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">{nextDrop.name}</h1>
+          <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-12">{nextDrop.description || 'Ez a drop most aktív!'}</p>
+        </div>
+      );
     }
     if (nextDrop && timeLeft) {
       return (
@@ -183,21 +176,14 @@ export default function HomePage() {
         <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-indigo-600 rounded-full filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
         <div className="relative z-10">
           {renderHeroContent()}
-          <button 
-            onClick={handleGoToShop} 
-            disabled={!isDropActive}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed mb-12"
-          >
-            Legújabb Dropok
-          </button>
-          
+
           {/* HeroStrip komponens beillesztése */}
           <div className="mt-8">
             <HeroStrip />
           </div>
         </div>
       </section>
-      
+
       <section className="bg-gray-800 py-16 px-4">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Ne maradj le semmiről!</h2>

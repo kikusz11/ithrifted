@@ -122,20 +122,10 @@ export default function Header() {
               alt="iThrifted Logo"
               className="h-16 w-auto"
             />
-            <span className="text-2xl font-bold text-white tracking-wider">
+            <span className="hidden md:block text-2xl font-bold text-white tracking-wider">
               i_Thrifted_
             </span>
           </Link>
-
-
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
 
           {/* Search Bar */}
           <form ref={searchRef} onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
@@ -185,7 +175,7 @@ export default function Header() {
             )}
           </form>
 
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             {!loading && (
               !user ? (
                 <button
@@ -270,6 +260,14 @@ export default function Header() {
               )
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
 
 

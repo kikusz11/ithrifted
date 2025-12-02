@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import logo from '../assets/logo.png';
+import { getPrimaryImage } from '../utils/productUtils';
 
 interface Product {
   id: string;
@@ -83,7 +84,7 @@ const HeroStrips = () => {
                 <div
                   className="w-full h-full bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-110"
                   style={{
-                    backgroundImage: `url("${product.image_url}")`,
+                    backgroundImage: `url("${getPrimaryImage(product)}")`,
                   }}
                 />
 
@@ -104,10 +105,6 @@ const HeroStrips = () => {
         </div>
       </div>
 
-      <div className="absolute top-6 right-6 text-gray-600 text-sm font-mono z-20 bg-white/80 px-2 py-1 rounded">
-        {new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} LDN
-      </div>
-
       <div className="absolute bottom-6 left-6 flex space-x-4 text-sm font-semibold z-20">
         <button
           onClick={() => navigate('/shop')}
@@ -115,10 +112,6 @@ const HeroStrips = () => {
         >
           shop
         </button>
-      </div>
-
-      <div className="absolute bottom-6 right-6 text-sm text-gray-700 z-20 bg-white/80 px-2 py-1 rounded">
-        hu • piac drop/winter 2025
       </div>
     </div>
   );

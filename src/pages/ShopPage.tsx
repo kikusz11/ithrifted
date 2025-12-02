@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Link, useSearchParams } from 'react-router-dom';
+import { getPrimaryImage } from '../utils/productUtils';
 
 const ProductCard = ({ product }) => {
   return (
@@ -10,7 +11,7 @@ const ProductCard = ({ product }) => {
     >
       <div className="overflow-hidden">
         <img
-          src={product.image_url || 'https://placehold.co/400x500/1e293b/94a3b8?text=Termék'}
+          src={getPrimaryImage(product) || 'https://placehold.co/400x500/1e293b/94a3b8?text=Termék'}
           alt={product.name}
           className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
         />
