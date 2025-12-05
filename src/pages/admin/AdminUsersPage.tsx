@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import GlassCard from '@/components/ui/GlassCard';
 import ModernButton from '@/components/ui/ModernButton';
-import ModernInput from '@/components/ui/ModernInput';
-import { Users, Trash2, Shield, Gift, Search, ChevronDown, ChevronUp, Phone, MapPin } from 'lucide-react';
+import { Users, Trash2, Shield, Gift, Search, ChevronDown, ChevronUp, Phone, MapPin, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Profile {
@@ -25,9 +24,17 @@ interface Coupon {
     id: string;
     code: string;
     discount_percent: number;
-    valid_from: string;
-    valid_to: string;
-    status: 'active' | 'used' | 'expired';
+    description: string;
+    expires_at: string | null;
+    usage_limit: number | null;
+    usage_count: number;
+}
+
+interface UserCoupon {
+    id: string;
+    coupon: Coupon;
+    assigned_at: string;
+    is_used: boolean;
 }
 
 export default function AdminUsersPage() {
@@ -37,11 +44,11 @@ export default function AdminUsersPage() {
     const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
     const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-    const [couponCode, setCouponCode] = useState('');
-    const [discountAmount, setDiscountAmount] = useState(10);
-    const [couponValidFrom, setCouponValidFrom] = useState(new Date().toISOString().split('T')[0]);
-    const [couponValidTo, setCouponValidTo] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-    const [userCoupons, setUserCoupons] = useState<Coupon[]>([]);
+
+    // Coupon Assignment State
+    const [availableCoupons, setAvailableCoupons] = useState<Coupon[]>([]);
+    const [selectedCouponId, setSelectedCouponId] = useState('');
+    const [userCoupons, setUserCoupons] = useState<UserCoupon[]>([]);
 
     useEffect(() => {
         fetchUsers();
@@ -112,36 +119,83 @@ export default function AdminUsersPage() {
         }
     };
 
-    const toggleExpand = (userId: string) => {
+    const toggleExpand = async (userId: string) => {
         if (expandedUserId === userId) {
             setExpandedUserId(null);
         } else {
             setExpandedUserId(userId);
-            // Mock fetch coupons for the user
-            const mockCoupons: Coupon[] = [
-                { id: '1', code: 'WELCOME20', discount_percent: 20, valid_from: '2023-01-01', valid_to: '2023-12-31', status: 'active' },
-                { id: '2', code: 'SUMMER10', discount_percent: 10, valid_from: '2023-06-01', valid_to: '2023-08-31', status: 'expired' },
-            ];
-            setUserCoupons(mockCoupons);
+            // Fetch real coupons for the user
+            try {
+                const { data, error } = await supabase
+                    .from('user_coupons')
+                    .select(`
+                        id,
+                        assigned_at,
+                        is_used,
+                        coupon:coupons (
+                            id,
+                            code,
+                            discount_percent,
+                            description,
+                            expires_at,
+                            usage_limit,
+                            usage_count
+                        )
+                    `)
+                    .eq('user_id', userId);
+
+                if (error) throw error;
+                setUserCoupons(data as any || []);
+            } catch (error) {
+                console.error('Error fetching user coupons:', error);
+                toast.error('Hiba a felhasználó kuponjainak betöltésekor');
+            }
         }
     };
 
-    const handleRevokeCoupon = (couponId: string) => {
-        if (!window.confirm('Biztosan vissza szeretnéd vonni ezt a kupont?')) return;
-        setUserCoupons(prev => prev.filter(c => c.id !== couponId));
-        toast.success('Kupon sikeresen visszavonva');
-    };
-
-    const handleOpenCouponModal = (user: Profile) => {
+    const handleOpenCouponModal = async (user: Profile) => {
         setSelectedUser(user);
-        setCouponCode(`SAVE${Math.floor(Math.random() * 1000)}`);
         setIsCouponModalOpen(true);
+
+        // Fetch available coupons to assign
+        try {
+            const { data, error } = await supabase
+                .from('coupons')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setAvailableCoupons(data || []);
+            if (data && data.length > 0) setSelectedCouponId(data[0].id);
+        } catch (error) {
+            console.error('Error fetching available coupons:', error);
+        }
     };
 
-    const handleSendCoupon = () => {
-        if (!selectedUser) return;
-        toast.success(`Kupon elküldve ${selectedUser.display_name} részére! (${couponValidFrom} - ${couponValidTo})`);
-        setIsCouponModalOpen(false);
+    const handleSendCoupon = async () => {
+        if (!selectedUser || !selectedCouponId) return;
+
+        try {
+            const { error } = await supabase
+                .from('user_coupons')
+                .insert({
+                    user_id: selectedUser.user_id,
+                    coupon_id: selectedCouponId
+                });
+
+            if (error) throw error;
+
+            toast.success(`Kupon sikeresen hozzárendelve ${selectedUser.display_name} részére!`);
+            setIsCouponModalOpen(false);
+            // Refresh user coupons if expanded
+            if (expandedUserId === selectedUser.user_id) {
+                toggleExpand(selectedUser.user_id); // Re-fetch
+            }
+        } catch (error) {
+            console.error('Error assigning coupon:', error);
+            toast.error('Hiba a kupon hozzárendelésekor (lehet, hogy már hozzá van rendelve)');
+        }
     };
 
     const filteredUsers = users.filter(user =>
@@ -238,32 +292,25 @@ export default function AdminUsersPage() {
                                         </div>
 
                                         <div className="space-y-3">
-                                            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Aktív Kuponok</h4>
+                                            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hozzárendelt Kuponok</h4>
                                             {userCoupons.length > 0 ? (
                                                 <div className="space-y-2">
-                                                    {userCoupons.map(coupon => (
-                                                        <div key={coupon.id} className="flex items-center justify-between bg-white/5 p-2 rounded-lg border border-white/10">
+                                                    {userCoupons.map(uc => (
+                                                        <div key={uc.id} className="flex items-center justify-between bg-white/5 p-2 rounded-lg border border-white/10">
                                                             <div>
                                                                 <div className="flex items-center gap-2">
-                                                                    <span className="font-mono font-bold text-white">{coupon.code}</span>
-                                                                    <span className={`text-xs px-1.5 py-0.5 rounded ${coupon.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
-                                                                        {coupon.status === 'active' ? 'Aktív' : 'Lejárt'}
+                                                                    <span className="font-mono font-bold text-white">{uc.coupon.code}</span>
+                                                                    <span className={`text-xs px-1.5 py-0.5 rounded ${uc.is_used ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-400'}`}>
+                                                                        {uc.is_used ? 'Felhasznált' : 'Aktív'}
                                                                     </span>
                                                                 </div>
-                                                                <p className="text-xs text-gray-400">{coupon.discount_percent}% kedvezmény • {coupon.valid_to}-ig</p>
+                                                                <p className="text-xs text-gray-400">{uc.coupon.discount_percent}% kedvezmény</p>
                                                             </div>
-                                                            <button
-                                                                onClick={() => handleRevokeCoupon(coupon.id)}
-                                                                className="text-red-400 hover:text-red-300 p-1 rounded-md hover:bg-red-500/10 transition-colors"
-                                                                title="Kupon visszavonása"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
                                                         </div>
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <p className="text-sm text-gray-500 italic">Nincs aktív kupon.</p>
+                                                <p className="text-sm text-gray-500 italic">Nincs hozzárendelt kupon.</p>
                                             )}
                                         </div>
 
@@ -287,7 +334,7 @@ export default function AdminUsersPage() {
                                                     className="flex items-center gap-2"
                                                 >
                                                     <Gift size={16} />
-                                                    <span>Kupon küldése</span>
+                                                    <span>Kupon hozzárendelése</span>
                                                 </ModernButton>
 
                                                 <ModernButton
@@ -319,55 +366,31 @@ export default function AdminUsersPage() {
             {isCouponModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                     <GlassCard className="w-full max-w-md p-6 space-y-6">
-                        <h2 className="text-2xl font-bold text-white">Kupon Küldése</h2>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-bold text-white">Kupon Hozzárendelése</h2>
+                            <button onClick={() => setIsCouponModalOpen(false)} className="text-gray-400 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+
                         <p className="text-gray-300">
-                            Kupon küldése <strong>{selectedUser?.display_name || 'a felhasználó'}</strong> részére.
+                            Kupon hozzárendelése <strong>{selectedUser?.display_name || 'a felhasználó'}</strong> részére.
                         </p>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Kupon Kód</label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={couponCode}
-                                        onChange={(e) => setCouponCode(e.target.value)}
-                                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-mono"
-                                    />
-                                    <ModernButton onClick={() => setCouponCode(`SAVE${Math.floor(Math.random() * 1000)}`)} variant="secondary" size="sm">
-                                        Generálás
-                                    </ModernButton>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Kedvezmény (%)</label>
-                                <input
-                                    type="number"
-                                    value={discountAmount}
-                                    onChange={(e) => setDiscountAmount(Number(e.target.value))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white"
-                                    max="100"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Érvényesség kezdete</label>
-                                    <ModernInput
-                                        type="date"
-                                        value={couponValidFrom}
-                                        onChange={(e) => setCouponValidFrom(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Érvényesség vége</label>
-                                    <ModernInput
-                                        type="date"
-                                        value={couponValidTo}
-                                        onChange={(e) => setCouponValidTo(e.target.value)}
-                                    />
-                                </div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Válassz Kupont</label>
+                                <select
+                                    value={selectedCouponId}
+                                    onChange={(e) => setSelectedCouponId(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                                >
+                                    {availableCoupons.map(coupon => (
+                                        <option key={coupon.id} value={coupon.id} className="bg-gray-800">
+                                            {coupon.code} - {coupon.discount_percent}% ({coupon.description})
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -376,7 +399,7 @@ export default function AdminUsersPage() {
                                 Mégse
                             </ModernButton>
                             <ModernButton variant="primary" onClick={handleSendCoupon}>
-                                Küldés
+                                Hozzárendelés
                             </ModernButton>
                         </div>
                     </GlassCard>

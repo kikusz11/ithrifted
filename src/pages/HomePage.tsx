@@ -133,13 +133,13 @@ export default function HomePage() {
   // A "hero" szekció tartalmának renderelése állapot alapján
   const renderHeroContent = () => {
     if (loading) {
-      return <div className="text-xl text-indigo-200">Következő drop keresése...</div>;
+      return <div className="text-xl text-stone-300">Következő drop keresése...</div>;
     }
     if (isDropActive && nextDrop) {
       return (
         <div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">{nextDrop.name}</h1>
-          <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-12">{nextDrop.description || 'Ez a drop most aktív!'}</p>
+          <p className="text-lg md:text-xl text-stone-300 max-w-3xl mx-auto mb-12">{nextDrop.description || 'Ez a drop most aktív!'}</p>
         </div>
       );
     }
@@ -147,12 +147,12 @@ export default function HomePage() {
       return (
         <div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">{nextDrop.name}</h1>
-          <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-12">{nextDrop.description || 'A következő drop hamarosan érkezik.'}</p>
+          <p className="text-lg md:text-xl text-stone-300 max-w-3xl mx-auto mb-12">{nextDrop.description || 'A következő drop hamarosan érkezik.'}</p>
           <div className="flex justify-center items-center gap-4 md:gap-8 mb-12">
             {Object.entries(timeLeft).map(([unit, value]) => (
               <div key={unit} className="text-center bg-white/10 p-4 rounded-lg min-w-[80px] md:min-w-[100px]">
                 <div className="text-4xl md:text-5xl font-bold">{formatTime(value)}</div>
-                <div className="text-xs md:text-sm text-indigo-300 uppercase">{unit.charAt(0).toUpperCase() + unit.slice(1)}</div>
+                <div className="text-xs md:text-sm text-stone-400 uppercase">{unit.charAt(0).toUpperCase() + unit.slice(1)}</div>
               </div>
             ))}
           </div>
@@ -162,18 +162,18 @@ export default function HomePage() {
     return (
       <div>
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4">Maradj Figyelemmel!</h1>
-        <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto">Jelenleg nincs aktív vagy bejelentett drop.</p>
+        <p className="text-lg md:text-xl text-stone-300 max-w-3xl mx-auto">Jelenleg nincs aktív vagy bejelentett drop.</p>
       </div>
     );
   };
 
   // A komponens JSX-e
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-stone-900 text-white min-h-screen">
       <section className="relative text-center py-20 md:py-32 px-4 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900 opacity-60"></div>
-        <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-purple-600 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-indigo-600 rounded-full filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-stone-800 via-stone-700 to-neutral-800 opacity-90"></div>
+        <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-stone-600 rounded-full filter blur-3xl opacity-10 animate-pulse"></div>
+        <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-neutral-700 rounded-full filter blur-3xl opacity-10 animate-pulse delay-2000"></div>
         <div className="relative z-10">
           {renderHeroContent()}
 
@@ -184,10 +184,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-gray-800 py-16 px-4">
+      <section className="bg-stone-800 py-16 px-4">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Ne maradj le semmiről!</h2>
-          <p className="text-gray-400 mb-8">
+          <p className="text-stone-400 mb-8">
             Kérj értesítést a következő drop eseményről, és legyél az elsők között.
           </p>
           <form onSubmit={handleSubscription} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
@@ -198,19 +198,19 @@ export default function HomePage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={formLoading}
-              className="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+              className="flex-grow bg-stone-700 border border-stone-600 rounded-lg px-4 py-3 text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-500 transition duration-300"
             />
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:bg-gray-500"
+              className="bg-stone-100 hover:bg-white text-stone-900 font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:bg-gray-500"
             >
               {formLoading ? 'Küldés...' : 'Értesítést Kérek'}
             </button>
           </form>
           {formMessage && <p className="text-green-400 mt-4">{formMessage}</p>}
           {formError && <p className="text-red-400 mt-4">{formError}</p>}
-          <p className="text-xs text-gray-500 mt-4">
+          <p className="text-xs text-stone-500 mt-4">
             Nem küldünk spamet. Bármikor leiratkozhatsz.
           </p>
         </div>

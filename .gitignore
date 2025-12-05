@@ -122,3 +122,6 @@ dist-ssr
 
 # Supabase
 supabase/functions/*/deno.lock
+
+# Local Netlify folder
+.netlify

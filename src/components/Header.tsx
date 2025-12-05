@@ -24,6 +24,7 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLFormElement>(null);
+  const mobileSearchRef = useRef<HTMLFormElement>(null);
 
   const { user, profile, loading } = useAuth();
   const { cart, cartTotal } = useCart();
@@ -104,7 +105,12 @@ export default function Header() {
       if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node)) {
         setIsCartOpen(false);
       }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+
+      // Check both desktop and mobile search refs
+      const isClickInsideDesktop = searchRef.current && searchRef.current.contains(event.target as Node);
+      const isClickInsideMobile = mobileSearchRef.current && mobileSearchRef.current.contains(event.target as Node);
+
+      if (!isClickInsideDesktop && !isClickInsideMobile) {
         setShowResults(false);
       }
     }
@@ -114,7 +120,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 bg-black/20 backdrop-blur-md border-b border-white/10 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-stone-900/80 backdrop-blur-md border-b border-white/10 shadow-lg">
         <div className="container mx-auto flex justify-between items-center p-4">
           <Link to="/" className="flex items-center gap-2">
             <img
@@ -123,7 +129,7 @@ export default function Header() {
               className="h-16 w-auto"
             />
             <span className="hidden md:block text-2xl font-bold text-white tracking-wider">
-              i_Thrifted_
+              ithrifted
             </span>
           </Link>
 
@@ -135,7 +141,7 @@ export default function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
-              className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 transition-all"
             />
             <button type="submit" className="absolute right-3 text-gray-400 hover:text-white transition-colors">
               <Search className="w-5 h-5" />
@@ -167,7 +173,7 @@ export default function Header() {
                 ))}
                 <button
                   onClick={handleSearch}
-                  className="w-full p-2 text-center text-xs font-medium text-indigo-400 hover:bg-gray-800 transition-colors"
+                  className="w-full p-2 text-center text-xs font-medium text-stone-400 hover:bg-stone-800 transition-colors"
                 >
                   Összes találat megtekintése ({searchResults.length}+)
                 </button>
@@ -180,7 +186,7 @@ export default function Header() {
               !user ? (
                 <button
                   onClick={() => setIsLoginOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg transition-transform duration-300 transform hover:scale-105"
+                  className="bg-stone-100 hover:bg-white text-stone-900 font-semibold py-2 px-5 rounded-lg transition-transform duration-300 transform hover:scale-105"
                 >
                   Bejelentkezés
                 </button>
@@ -235,19 +241,19 @@ export default function Header() {
 
                   {/* --- PROFIL IKON ÉS LENYÍLÓ MENÜ --- */}
                   <div className="relative" ref={profileDropdownRef}>
-                    <button onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)} className="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center border-2 border-transparent hover:border-indigo-500 transition">
+                    <button onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)} className="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center border-2 border-transparent hover:border-stone-500 transition">
                       <ProfileIcon />
                     </button>
                     {isProfileDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-48 bg-black/50 backdrop-blur-xl rounded-md shadow-lg py-1 z-50 border border-white/20">
                         <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-700">{user.email}</div>
-                        <Link to="/profile" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-200 hover:bg-indigo-600 transition">Profilom</Link>
-                        <Link to="/orders" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-200 hover:bg-indigo-600 transition">Rendeléseim</Link>
+                        <Link to="/profile" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-200 hover:bg-stone-600 transition">Profilom</Link>
+                        <Link to="/orders" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-200 hover:bg-stone-600 transition">Rendeléseim</Link>
 
                         {profile?.is_admin && (
                           <>
                             <div className="border-t border-gray-700 my-1"></div>
-                            <Link to="/admin" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm font-bold text-indigo-400 hover:bg-indigo-600 hover:text-white transition">Admin Felület</Link>
+                            <Link to="/admin" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm font-bold text-indigo-400 hover:bg-stone-600 hover:text-white transition">Admin Felület</Link>
                           </>
                         )}
 
@@ -274,36 +280,74 @@ export default function Header() {
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-gray-900 border-b border-white/10 shadow-xl p-4 animate-fadeIn">
-            <form onSubmit={(e) => { handleSearch(e); setIsMobileMenuOpen(false); }} className="relative mb-4">
+            <form ref={mobileSearchRef} onSubmit={(e) => { handleSearch(e); setIsMobileMenuOpen(false); }} className="relative mb-4">
               <input
                 type="text"
                 placeholder="Keresés..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
                 className="w-full bg-white/10 border border-white/20 rounded-lg py-2 pl-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500"
               />
               <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Search className="w-5 h-5" />
               </button>
+
+              {/* Mobile Live Search Results */}
+              {showResults && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50">
+                  {searchResults.map(product => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.id}`}
+                      onClick={() => {
+                        setShowResults(false);
+                        setSearchQuery('');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 p-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0"
+                    >
+                      <img
+                        src={product.image_url || 'https://placehold.co/40x40'}
+                        alt={product.name}
+                        className="w-10 h-10 rounded object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{product.name}</p>
+                        <p className="text-xs text-gray-400">{product.price.toLocaleString()} Ft</p>
+                      </div>
+                    </Link>
+                  ))}
+                  <button
+                    onClick={(e) => {
+                      handleSearch(e);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full p-2 text-center text-xs font-medium text-stone-400 hover:bg-stone-800 transition-colors"
+                  >
+                    Összes találat megtekintése ({searchResults.length}+)
+                  </button>
+                </div>
+              )}
             </form>
 
             <div className="flex flex-col gap-2">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Főoldal</Link>
-              <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Bolt</Link>
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300">Főoldal</Link>
+              <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300">Bolt</Link>
 
               {!user ? (
                 <button
                   onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }}
-                  className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg text-center"
+                  className="w-full mt-2 bg-stone-100 hover:bg-white text-stone-900 font-semibold py-2 px-5 rounded-lg text-center"
                 >
                   Bejelentkezés
                 </button>
               ) : (
                 <>
                   <div className="border-t border-white/10 my-2"></div>
-                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Profilom</Link>
-                  <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400">Rendeléseim</Link>
-                  <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-white hover:text-indigo-400 flex justify-between items-center">
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300">Profilom</Link>
+                  <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300">Rendeléseim</Link>
+                  <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300 flex justify-between items-center">
                     Kosár
                     {totalItemsInCart > 0 && (
                       <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
