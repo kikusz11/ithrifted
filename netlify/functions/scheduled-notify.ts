@@ -2,7 +2,7 @@ import { schedule } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
 
 // This function runs every 15 minutes
-const handler = async (event) => {
+const notificationHandler = async (event) => {
     console.log("Running scheduled notification check...");
 
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -115,4 +115,4 @@ const handler = async (event) => {
 };
 
 // Schedule to run every 15 minutes
-export const scheduledHandler = schedule("*/15 * * * *", handler);
+export const handler = schedule("*/15 * * * *", notificationHandler);
