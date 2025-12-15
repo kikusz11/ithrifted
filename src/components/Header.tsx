@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { supabase } from '../lib/supabaseClient';
 import LoginModal from './LoginModal';
 import { useCart } from '../contexts/CartContext';
 import logo from '../assets/logo.png';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
 
 // Ikon a kosárhoz
 const CartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
@@ -19,6 +19,14 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // New Filter States
+  const [gender, setGender] = useState('');
+  const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState<any[]>([]); // Dynamic categories objects
+  const [menuGroups, setMenuGroups] = useState<string[]>([]);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [expandedGender, setExpandedGender] = useState<string | null>(null);
+
   // Live Search State
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -29,11 +37,22 @@ export default function Header() {
   const { user, profile, loading } = useAuth();
   const { cart, cartTotal } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const cartDropdownRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const totalItemsInCart = cart.reduce((total, item) => total + item.quantity, 0);
+
+  // Sync state with URL params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setGender(params.get('gender') || '');
+    setCategory(params.get('category') || '');
+    // Always sync search query (clear it if not in URL)
+    setSearchQuery(params.get('search') || '');
+  }, [location.search]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -42,28 +61,59 @@ export default function Header() {
     window.location.reload();
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-      setShowResults(false);
-    }
+  const getGroupLabel = (key: string) => {
+    const map: Record<string, string> = {
+      'male': 'Férfi',
+      'female': 'Női',
+      'unisex': 'Unisex',
+      'sales': 'Akciós',
+      'new': 'Újdonságok',
+      'bestsellers': 'Népszerű'
+    };
+    return map[key] || key.charAt(0).toUpperCase() + key.slice(1);
   };
 
-  // Fetch products for live search
+  // Fetch products and categories
   useEffect(() => {
-    const fetchProducts = async () => {
-      const { data } = await supabase
+    const fetchData = async () => {
+      // Fetch Products
+      const { data: productsData } = await supabase
         .from('products')
         .select('id, name, price, image_url, description, category');
 
-      if (data) {
-        setAllProducts(data);
+      if (productsData) {
+        setAllProducts(productsData);
+      }
+
+      // Fetch Categories
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (categoriesData) {
+        setCategories(categoriesData);
+        // Calculate dynamic groups
+        const distinct = Array.from(new Set(categoriesData.map(c => c.assigned_gender).filter(g => g !== 'all')));
+        const standard = ['male', 'female', 'unisex'];
+        // Merge standard first, then others
+        const others = distinct.filter(d => !standard.includes(d));
+        setMenuGroups([...standard, ...others]);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    // Independent Search: Always Global (ignores selected category)
+    navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    setShowResults(false);
+    // Note: State (gender, category) will be synced via useEffect on location change
+  };
 
   // Filter products on search query change
   useEffect(() => {
@@ -105,6 +155,9 @@ export default function Header() {
       if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node)) {
         setIsCartOpen(false);
       }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryOpen(false);
+      }
 
       // Check both desktop and mobile search refs
       const isClickInsideDesktop = searchRef.current && searchRef.current.contains(event.target as Node);
@@ -133,19 +186,114 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Search Bar */}
-          <form ref={searchRef} onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
-            <input
-              type="text"
-              placeholder="Keresés..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
-              className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 transition-all"
-            />
-            <button type="submit" className="absolute right-3 text-gray-400 hover:text-white transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
+          {/* Search Bar with Integrated Category Dropdown */}
+          <form ref={searchRef} onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-2xl mx-8 relative bg-white/10 border border-white/20 rounded-full focus-within:ring-1 focus-within:ring-stone-500 transition-all">
+
+            {/* Combined Custom Filter Dropdown */}
+            <div
+              className="relative h-full"
+              ref={categoryDropdownRef}
+              onMouseEnter={() => setIsCategoryOpen(true)}
+              onMouseLeave={() => setIsCategoryOpen(false)}
+            >
+              <button
+                type="button"
+                className="flex items-center gap-2 h-full px-4 py-2.5 text-white hover:bg-white/5 transition-all text-sm border-r border-white/10 rounded-l-full shrink-0"
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              >
+                <span className="truncate font-medium">
+                  {gender ? (category ? `${getGroupLabel(gender)} ${category}` : getGroupLabel(gender)) : 'Kategóriák'}
+                </span>
+                <ChevronDown size={14} className={`text-stone-400 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isCategoryOpen && (
+                <div className="absolute top-full left-0 pt-3 w-64 z-[100] animate-fadeIn">
+                  <div className="bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl backdrop-blur-3xl ring-1 ring-black/5 py-2">
+                    {menuGroups.map((g) => {
+                      const groupCats = categories.filter(c =>
+                        c.assigned_gender === g || (['male', 'female', 'unisex'].includes(g) && c.assigned_gender === 'all')
+                      );
+
+                      if (groupCats.length === 0) return null;
+
+                      return (
+                        <div
+                          key={g}
+                          className="group/item relative"
+                          onMouseEnter={() => setExpandedGender(g)}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setGender(g);
+                              setCategory('');
+                              navigate(`/shop?gender=${g}`);
+                              setIsCategoryOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-5 py-3 text-sm text-left hover:bg-white/10 transition-colors ${gender === g ? 'text-white font-medium' : 'text-stone-300'}`}
+                          >
+                            <span className="flex-1">{getGroupLabel(g)}</span>
+                            <ChevronRight size={14} className="text-stone-500" />
+                          </button>
+
+                          {/* Flyout Submenu */}
+                          <div className="hidden group-hover/item:block absolute left-full top-0 w-56 ml-2 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl backdrop-blur-3xl overflow-hidden z-[100]">
+                            <div className="py-2">
+                              {/* Option to select just the group */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setGender(g);
+                                  setCategory('');
+                                  navigate(`/shop?gender=${g}`);
+                                  setIsCategoryOpen(false);
+                                }}
+                                className="w-full text-left px-5 py-2 text-sm font-medium text-white hover:bg-white/10 border-b border-white/5 mb-1"
+                              >
+                                Összes {getGroupLabel(g)}
+                              </button>
+
+                              {groupCats.map(cat => (
+                                <button
+                                  key={`${g}-${cat.id}`}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setGender(g);
+                                    setCategory(cat.name);
+                                    navigate(`/shop?gender=${g}&category=${cat.name}`);
+                                    setIsCategoryOpen(false);
+                                  }}
+                                  className={`w-full text-left px-5 py-2 text-sm text-stone-400 hover:text-white hover:bg-white/10 transition-colors ${gender === g && category === cat.name ? 'text-white bg-white/10' : ''}`}
+                                >
+                                  {cat.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Keresés..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
+                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-stone-400 py-2.5 px-4 text-sm rounded-r-full outline-none"
+              />
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white transition-colors p-1">
+                <Search className="w-4 h-4" />
+              </button>
+            </div>
 
             {/* Live Search Results Dropdown */}
             {showResults && searchResults.length > 0 && (

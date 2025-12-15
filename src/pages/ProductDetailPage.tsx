@@ -12,10 +12,12 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  sale_price?: number | null;
   image_url: string;
   sizes: string[];
   category: string;
   gender: string;
+  stock: number;
 }
 
 export default function ProductDetailPage() {
@@ -84,11 +86,12 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const handleAddToCart = () => {
-    if (product) {
+    if (product && product.stock > 0) {
+      const finalPrice = product.sale_price ? product.sale_price : product.price;
       addToCart({
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: finalPrice,
         image: getPrimaryImage(product)
       });
 
@@ -112,6 +115,8 @@ export default function ProductDetailPage() {
   // Képek kezelése - getAllImages használata
   const images = getAllImages(product);
 
+  const isOnSale = product.sale_price && product.sale_price < product.price;
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="flex">
@@ -124,6 +129,7 @@ export default function ProductDetailPage() {
                   src={image}
                   alt={`${product.name} - ${index + 1}`}
                   className="w-full h-auto object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                  style={{ filter: product.stock <= 0 ? 'grayscale(100%)' : 'none' }}
                 />
               </div>
             ))}
@@ -136,9 +142,31 @@ export default function ProductDetailPage() {
             {/* Termék név és ár */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-              <p className="text-2xl text-white font-semibold">
-                {product.price.toLocaleString()} Ft
-              </p>
+              <div className="flex items-center gap-4 flex-wrap">
+                {isOnSale ? (
+                  <div className="flex items-center gap-3">
+                    <p className="text-2xl text-red-400 font-bold">
+                      {product.sale_price?.toLocaleString()} Ft
+                    </p>
+                    <p className="text-xl text-gray-400 line-through decoration-red-500/50">
+                      {product.price.toLocaleString()} Ft
+                    </p>
+                    <span className="bg-red-500/20 text-red-400 px-2 py-1 text-xs font-bold rounded">
+                      AKCIÓ
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-2xl text-white font-semibold">
+                    {product.price.toLocaleString()} Ft
+                  </p>
+                )}
+
+                {product.stock <= 0 && (
+                  <span className="bg-red-500 text-white px-3 py-1 text-sm font-bold rounded">
+                    ELFOGYOTT
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Termék leírás */}
@@ -154,9 +182,13 @@ export default function ProductDetailPage() {
             {/* Kosárba gomb */}
             <button
               onClick={handleAddToCart}
-              className="w-full bg-black hover:bg-gray-800 text-white font-medium py-4 px-6 text-sm tracking-wide transition-colors duration-200 mb-8"
+              disabled={product.stock <= 0}
+              className={`w-full font-medium py-4 px-6 text-sm tracking-wide transition-colors duration-200 mb-8
+                ${product.stock <= 0
+                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-black hover:bg-gray-800 text-white'}`}
             >
-              KOSÁRBA
+              {product.stock <= 0 ? 'ELFOGYOTT' : 'KOSÁRBA'}
             </button>
 
             {/* Termék részletek tabok */}

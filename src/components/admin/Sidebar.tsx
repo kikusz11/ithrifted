@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Droplets, ShoppingBag, ShoppingCart, Home, Users, Ticket } from 'lucide-react';
+import { LayoutDashboard, Droplets, ShoppingBag, ShoppingCart, Home, Users, Ticket, Tags } from 'lucide-react';
 
 const navLinks = [
   { href: '/admin', label: 'Irányítópult', icon: LayoutDashboard },
@@ -8,6 +8,7 @@ const navLinks = [
   { href: '/admin/orders', label: 'Rendelés Kezelés', icon: ShoppingCart },
   { href: '/admin/users', label: 'Felhasználók', icon: Users },
   { href: '/admin/coupons', label: 'Kuponok', icon: Ticket },
+  { href: '/admin/categories', label: 'Kategóriák', icon: Tags },
 ];
 
 interface SidebarProps {

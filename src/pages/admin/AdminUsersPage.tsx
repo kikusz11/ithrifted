@@ -23,7 +23,9 @@ interface Profile {
 interface Coupon {
     id: string;
     code: string;
-    discount_percent: number;
+    discount_percent?: number; // Backward compatibility
+    discount_type: 'percentage' | 'fixed_cart' | 'fixed_product' | 'free_shipping' | 'buy_x_get_y';
+    discount_amount: number;
     description: string;
     expires_at: string | null;
     usage_limit: number | null;
@@ -133,13 +135,7 @@ export default function AdminUsersPage() {
                         assigned_at,
                         is_used,
                         coupon:coupons (
-                            id,
-                            code,
-                            discount_percent,
-                            description,
-                            expires_at,
-                            usage_limit,
-                            usage_count
+                            *
                         )
                     `)
                     .eq('user_id', userId);
@@ -195,6 +191,25 @@ export default function AdminUsersPage() {
         } catch (error) {
             console.error('Error assigning coupon:', error);
             toast.error('Hiba a kupon hozzárendelésekor (lehet, hogy már hozzá van rendelve)');
+        }
+    };
+
+    const handleRemoveCoupon = async (userCouponId: string) => {
+        if (!confirm('Biztosan el szeretnéd távolítani ezt a kupont a felhasználótól?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('user_coupons')
+                .delete()
+                .eq('id', userCouponId);
+
+            if (error) throw error;
+
+            setUserCoupons(prev => prev.filter(uc => uc.id !== userCouponId));
+            toast.success('Kupon sikeresen eltávolítva');
+        } catch (error) {
+            console.error('Error removing coupon:', error);
+            toast.error('Hiba a kupon eltávolításakor');
         }
     };
 
@@ -304,8 +319,19 @@ export default function AdminUsersPage() {
                                                                         {uc.is_used ? 'Felhasznált' : 'Aktív'}
                                                                     </span>
                                                                 </div>
-                                                                <p className="text-xs text-gray-400">{uc.coupon.discount_percent}% kedvezmény</p>
+                                                                <p className="text-xs text-gray-400">
+                                                                    {uc.coupon.discount_type === 'percentage'
+                                                                        ? `${uc.coupon.discount_amount}% kedvezmény`
+                                                                        : `${uc.coupon.discount_amount} Ft kedvezmény`}
+                                                                </p>
                                                             </div>
+                                                            <button
+                                                                onClick={() => handleRemoveCoupon(uc.id)}
+                                                                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+                                                                title="Kupon eltávolítása"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -387,7 +413,7 @@ export default function AdminUsersPage() {
                                 >
                                     {availableCoupons.map(coupon => (
                                         <option key={coupon.id} value={coupon.id} className="bg-gray-800">
-                                            {coupon.code} - {coupon.discount_percent}% ({coupon.description})
+                                            {coupon.code} - {coupon.discount_type === 'percentage' ? `${coupon.discount_amount}%` : `${coupon.discount_amount} Ft`} ({coupon.description})
                                         </option>
                                     ))}
                                 </select>

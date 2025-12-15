@@ -15,7 +15,6 @@ interface Address {
   city?: string;
   postal_code?: string;
   country?: string;
-  // phone?: string; // Ezt a sort kivettük
 }
 
 // A telefonszám a fő profiladat része lett.
@@ -36,6 +35,59 @@ export default function ModernProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isEditingShipping, setIsEditingShipping] = useState(false);
   const [isEditingBilling, setIsEditingBilling] = useState(false);
+
+  const [userCoupons, setUserCoupons] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserCoupons();
+    }
+  }, [user]);
+
+  const fetchUserCoupons = async () => {
+    try {
+      // 1. Fetch public coupons
+      const { data: publicCoupons, error: publicError } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_public', true);
+
+      if (publicError) throw publicError;
+
+      // 2. Fetch assigned coupons
+      const { data: assignedCoupons, error: assignedError } = await supabase
+        .from('user_coupons')
+        .select(`
+          id,
+          is_used,
+          coupon:coupons (
+            *
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('is_used', false);
+
+      if (assignedError) throw assignedError;
+
+      // 3. Merge and Normalize
+      const formattedPublicCoupons = (publicCoupons || []).map(c => ({
+        coupon: c,
+        is_used: false,
+        is_public: true
+      }));
+
+      // Filter out assigned coupons that might duplicate public ones (if any logic allows that, though usually distinct)
+      // For now, just combining them.
+      // Note: assignedCoupons already has the structure { id, is_used, coupon: {...} }
+
+      const allCoupons = [...formattedPublicCoupons, ...(assignedCoupons || [])];
+
+      setUserCoupons(allCoupons);
+    } catch (error) {
+      console.error('Error fetching coupons:', error);
+    }
+  };
 
   useEffect(() => {
     async function getProfile() {
@@ -111,7 +163,7 @@ export default function ModernProfilePage() {
         display_name: profileData.display_name,
         phone: profileData.phone,
         updated_at: new Date()
-      }, { onConflict: 'user_id' }); // JAVÍTÁS: onConflict megadása
+      }, { onConflict: 'user_id' });
 
     if (error) { alert('Hiba a profil mentésekor: ' + error.message); }
     else { setIsEditingProfile(false); }
@@ -134,14 +186,13 @@ export default function ModernProfilePage() {
     setLoading(true);
     console.log('Updating address:', addressTypeToUpdate, profileData[addressTypeToUpdate]);
 
-    // Használjunk upsert-et, hogy ha nincs sor, akkor létrehozza
     const { error, data } = await supabase
       .from('profiles')
       .upsert({
         user_id: user.id,
         [addressTypeToUpdate]: profileData[addressTypeToUpdate],
         updated_at: new Date()
-      }, { onConflict: 'user_id' }) // JAVÍTÁS: onConflict megadása
+      }, { onConflict: 'user_id' })
       .select();
 
     console.log('Update result:', { data, error });
@@ -154,16 +205,13 @@ export default function ModernProfilePage() {
     setLoading(false);
   };
 
-  // 2. JAVÍTÁS: A cím másolása függvény most már ment is az adatbázisba.
   const handleCopyAddress = async () => {
     if (!user || !profileData?.shipping_address) return;
 
     const addressToCopy = { ...profileData.shipping_address };
 
-    // 1. Frissítjük a képernyőt (azonnali visszajelzés)
     setProfileData(prev => ({ ...prev!, billing_address: addressToCopy }));
 
-    // 2. Elküldjük a frissítést a Supabase-nek is
     setLoading(true);
     const { error } = await supabase
       .from('profiles')
@@ -171,7 +219,7 @@ export default function ModernProfilePage() {
         user_id: user.id,
         billing_address: addressToCopy,
         updated_at: new Date()
-      }, { onConflict: 'user_id' }); // JAVÍTÁS: onConflict megadása
+      }, { onConflict: 'user_id' });
 
     if (error) {
       alert('Hiba a cím másolásakor: ' + error.message);
@@ -199,7 +247,7 @@ export default function ModernProfilePage() {
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: `${publicURL}?t=${new Date().getTime()}` })
-      .eq('user_id', user.id); // JAVÍTÁS: user_id alapján frissítünk
+      .eq('user_id', user.id);
     if (updateError) {
       alert('Error updating avatar URL: ' + updateError.message);
     } else {
@@ -318,31 +366,41 @@ export default function ModernProfilePage() {
                   <Ticket className="text-blue-400" size={24} />
                   <h3 className="text-xl font-bold text-white">Kuponjaim</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { code: 'ITHRIFTED20', discount: '20%', desc: 'Nyitási akció' },
-                    { code: 'SAVE10', discount: '10%', desc: 'Hűségkedvezmény' }
-                  ].map((coupon, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center group hover:border-blue-500/50 transition-colors">
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">{coupon.desc}</p>
-                        <p className="text-xl font-mono font-bold text-white tracking-wider">{coupon.code}</p>
-                        <p className="text-green-400 text-sm font-medium">{coupon.discount} kedvezmény</p>
+                {userCoupons.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {userCoupons.map((uc, idx) => (
+                      <div key={idx} className={`bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center group hover:border-blue-500/50 transition-colors ${uc.is_used ? 'opacity-50' : ''}`}>
+                        <div>
+                          <p className="text-gray-400 text-xs mb-1">{uc.coupon.description}</p>
+                          <p className="text-xl font-mono font-bold text-white tracking-wider">{uc.coupon.code}</p>
+                          <p className="text-green-400 text-sm font-medium">
+                            {uc.coupon.discount_type === 'percentage'
+                              ? `${uc.coupon.discount_amount}% kedvezmény`
+                              : `${uc.coupon.discount_amount} Ft kedvezmény`}
+                          </p>
+                          {uc.is_used && <p className="text-red-400 text-xs mt-1">Felhasználva</p>}
+                        </div>
+                        {!uc.is_used && (
+                          <ModernButton
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(uc.coupon.code);
+                              alert('Kuponkód másolva!');
+                            }}
+                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                          >
+                            <Copy size={16} />
+                          </ModernButton>
+                        )}
                       </div>
-                      <ModernButton
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(coupon.code);
-                          alert('Kuponkód másolva!');
-                        }}
-                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                      >
-                        <Copy size={16} />
-                      </ModernButton>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-400">
+                    <p>Nincs elérhető kuponod.</p>
+                  </div>
+                )}
               </GlassCard>
 
               {isEditingShipping ? (

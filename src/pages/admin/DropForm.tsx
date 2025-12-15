@@ -26,11 +26,19 @@ export default function DropForm({ onSubmit, initialData = null, onClose }: Drop
 
   useEffect(() => {
     if (initialData) {
+      // Convert UTC to Local time for the input
+      const toLocalString = (dateStr: string) => {
+        const date = new Date(dateStr);
+        const offset = date.getTimezoneOffset() * 60000;
+        const localDate = new Date(date.getTime() - offset);
+        return localDate.toISOString().slice(0, 16);
+      };
+
       setFormData({
         name: initialData.name || '',
         description: initialData.description || '',
-        start_time: initialData.start_time ? new Date(initialData.start_time).toISOString().slice(0, 16) : '',
-        end_time: initialData.end_time ? new Date(initialData.end_time).toISOString().slice(0, 16) : '',
+        start_time: initialData.start_time ? toLocalString(initialData.start_time) : '',
+        end_time: initialData.end_time ? toLocalString(initialData.end_time) : '',
         is_active: initialData.is_active || false,
       });
     }
@@ -47,7 +55,14 @@ export default function DropForm({ onSubmit, initialData = null, onClose }: Drop
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Convert Local time back to UTC for saving
+    const dataToSubmit = {
+      ...formData,
+      start_time: formData.start_time ? new Date(formData.start_time).toISOString() : null,
+      end_time: formData.end_time ? new Date(formData.end_time).toISOString() : null,
+    };
+    // @ts-ignore
+    onSubmit(dataToSubmit);
   };
 
   return (

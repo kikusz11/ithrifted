@@ -29,6 +29,8 @@ interface Order {
         city: string;
         postal_code: string;
         country: string;
+        tax_id?: string;
+        payment_method?: string;
     };
     order_items: OrderItem[];
 }

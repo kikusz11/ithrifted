@@ -3,23 +3,47 @@ import { supabase } from '../lib/supabaseClient';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getPrimaryImage } from '../utils/productUtils';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product }: { product: any }) => {
+  const isSoldOut = product.stock <= 0;
+
   return (
     <Link
       to={`/product/${product.id}`}
-      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl overflow-hidden group block"
+      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl overflow-hidden group block relative"
     >
-      <div className="overflow-hidden">
+      <div className="overflow-hidden relative">
         <img
           src={getPrimaryImage(product) || 'https://placehold.co/400x500/1e293b/94a3b8?text=Termék'}
           alt={product.name}
           className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+          style={{ filter: isSoldOut ? 'grayscale(100%)' : 'none' }}
         />
+        {isSoldOut && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+            <span className="text-white font-bold text-lg transform -rotate-45 border-4 border-white px-4 py-1">
+              ELFOGYOTT
+            </span>
+          </div>
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold truncate text-white">{product.name}</h3>
         <p className="text-slate-400 text-sm mb-2">{product.category} - {product.gender}</p>
-        <p className="text-xl font-bold text-white">{product.price.toLocaleString()} Ft</p>
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            {product.sale_price && product.sale_price < product.price ? (
+              <>
+                <p className="text-xl font-bold text-red-400">{product.sale_price.toLocaleString()} Ft</p>
+                <p className="text-sm text-gray-400 line-through">{product.price.toLocaleString()} Ft</p>
+              </>
+            ) : (
+              <p className="text-xl font-bold text-white">{product.price.toLocaleString()} Ft</p>
+            )}
+          </div>
+          {isSoldOut && (
+            <span className="text-red-500 font-bold text-sm">ELFOGYOTT</span>
+          )}
+        </div>
       </div>
     </Link>
   );
@@ -31,6 +55,8 @@ export default function ShopPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search');
+  const genderFilter = searchParams.get('gender');
+  const categoryFilter = searchParams.get('category');
 
   useEffect(() => {
     let isMounted = true; // Flag a komponens mount állapotának nyomon követésére
@@ -72,20 +98,46 @@ export default function ShopPage() {
       .toLowerCase();
   };
 
-  // Filter products based on search query
+  // Filter products based on search query and filters
   const filteredProducts = products.filter(product => {
-    if (!searchQuery) return true;
+    // 1. Gender Filter
+    const standardGenders = ['Férfi', 'Női', 'Unisex', 'male', 'female', 'unisex'];
+    if (genderFilter && standardGenders.includes(genderFilter)) {
+      const gFilter = genderFilter.toLowerCase();
+      const pGender = (product.gender || '').toLowerCase();
 
-    const normalizedQuery = normalizeText(searchQuery);
-    const normalizedName = normalizeText(product.name);
-    const normalizedDescription = normalizeText(product.description || '');
-    const normalizedCategory = normalizeText(product.category || '');
+      // Normalize gender matching (handle Hungarian/English and casing)
+      const isMale = (g: string) => ['male', 'férfi', 'ferfi'].includes(g);
+      const isFemale = (g: string) => ['female', 'női', 'noi'].includes(g);
+      const isUnisex = (g: string) => ['unisex'].includes(g);
 
-    return (
-      normalizedName.includes(normalizedQuery) ||
-      normalizedDescription.includes(normalizedQuery) ||
-      normalizedCategory.includes(normalizedQuery)
-    );
+      if (isMale(gFilter) && !isMale(pGender)) return false;
+      if (isFemale(gFilter) && !isFemale(pGender)) return false;
+      if (isUnisex(gFilter) && !isUnisex(pGender)) return false;
+    }
+
+    // 2. Category Filter
+    if (categoryFilter) {
+      const pCat = normalizeText(product.category || '');
+      const fCat = normalizeText(categoryFilter);
+      if (pCat !== fCat) return false;
+    }
+
+    // 3. Search Query
+    if (searchQuery) {
+      const normalizedQuery = normalizeText(searchQuery);
+      const normalizedName = normalizeText(product.name);
+      const normalizedDescription = normalizeText(product.description || '');
+      const normalizedCategory = normalizeText(product.category || '');
+
+      return (
+        normalizedName.includes(normalizedQuery) ||
+        normalizedDescription.includes(normalizedQuery) ||
+        normalizedCategory.includes(normalizedQuery)
+      );
+    }
+
+    return true;
   });
 
   if (loading) return <div className="text-center p-8 text-white">Termékek betöltése...</div>;
@@ -94,7 +146,12 @@ export default function ShopPage() {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="text-4xl font-bold mb-8 text-center text-white">
-        {searchQuery ? `Keresés: "${searchQuery}"` : 'Összes Termék'}
+        {searchQuery
+          ? `Keresés: "${searchQuery}"`
+          : (genderFilter || categoryFilter)
+            ? `Szűrés: ${genderFilter ? genderFilter : ''} ${categoryFilter ? categoryFilter : ''}`
+            : 'Összes Termék'
+        }
       </h1>
 
       {filteredProducts.length === 0 ? (

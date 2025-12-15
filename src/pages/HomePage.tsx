@@ -11,13 +11,14 @@ interface Drop {
   start_time: string;
 }
 
+
 export default function HomePage() {
   // Állapotok a komponens működéséhez
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
   const [nextDrop, setNextDrop] = useState<Drop | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDropActive, setIsDropActive] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Állapotok a feliratkozási űrlaphoz
   const [email, setEmail] = useState('');

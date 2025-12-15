@@ -8,6 +8,7 @@ interface Product {
   id: string;
   name: string;
   image_url: string;
+  stock?: number;
 }
 
 const HeroStrips = () => {
@@ -21,12 +22,13 @@ const HeroStrips = () => {
 
       const { data } = await supabase
         .from('products')
-        .select('id, name, image_url')
+        .select('id, name, image_url, stock')
         .not('image_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(25);
 
       if (data) {
+        // @ts-ignore
         setProducts(data);
       }
       setLoading(false);
@@ -85,10 +87,21 @@ const HeroStrips = () => {
                   className="w-full h-full bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-110"
                   style={{
                     backgroundImage: `url("${getPrimaryImage(product)}")`,
+                    // @ts-ignore
+                    filter: product.stock <= 0 ? 'grayscale(100%)' : 'none'
                   }}
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 group-hover:to-black/40 transition-all duration-200" />
+
+                {/* @ts-ignore */}
+                {product.stock <= 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/50">
+                    <span className="text-white font-bold text-xs transform -rotate-45 border-2 border-white px-1">
+                      SOLDOUT
+                    </span>
+                  </div>
+                )}
 
                 <span className="absolute top-1 left-1 bg-white text-black text-xs font-semibold px-1 py-0.5 rounded text-[10px] opacity-80">
                   new

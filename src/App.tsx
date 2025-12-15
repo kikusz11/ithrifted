@@ -7,6 +7,7 @@ import Header from './components/Header.tsx';
 import Footer from './components/Footer';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import AdminLayout from './components/admin/AdminLayout.tsx';
+import SpinWheelWidget from './components/marketing/SpinWheelWidget.tsx';
 import { CartProvider } from './contexts/CartContext.tsx';
 import { supabase } from './lib/supabaseClient';
 
@@ -21,6 +22,7 @@ import AdminDropsPage from './pages/admin/AdminDropsPage.tsx';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage.tsx';
 import AdminUsersPage from './pages/admin/AdminUsersPage.tsx';
 import AdminCouponsPage from './pages/admin/AdminCouponsPage.tsx';
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage.tsx';
 import ShopPage from './pages/ShopPage.tsx';
 import ProductDetailPage from './pages/ProductDetailPage.tsx';
 import UserOrdersPage from './pages/UserOrdersPage.tsx';
@@ -79,6 +81,7 @@ function App() {
                   <Route path="/orders" element={<AdminOrdersPage />} />
                   <Route path="/users" element={<AdminUsersPage />} />
                   <Route path="/coupons" element={<AdminCouponsPage />} />
+                  <Route path="/categories" element={<AdminCategoriesPage />} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>
@@ -99,6 +102,7 @@ function App() {
                     <Route path="/orders" element={<UserOrdersPage />} />
                   </Routes>
                 </main>
+                <SpinWheelWidget />
                 <Footer />
               </div>
             ) : (

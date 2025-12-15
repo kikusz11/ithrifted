@@ -392,7 +392,7 @@ export default function AdminProductsPage() {
         // For now, let's skip automatic image deletion to avoid complexity with shared images or parsing errors,
         // or implement it carefully.
         if (productToDelete && productToDelete.image_url) {
-          const images = getAllImages(productToDelete);
+          // const images = getAllImages(productToDelete);
           // Optional: Delete from storage. 
           // Skipping for safety/simplicity in this iteration, as buckets might not allow delete or filenames might be complex.
         }
