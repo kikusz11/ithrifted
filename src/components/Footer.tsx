@@ -29,9 +29,9 @@ export default function Footer() {
                                     <Mail size={16} />
                                     <span>info@ithrifted.hu</span>
                                 </a>
-                                <a href="tel:+36301234567" className="flex items-center gap-2 hover:text-stone-300 transition-colors">
+                                <a href="tel:+36306090401" className="flex items-center gap-2 hover:text-stone-300 transition-colors">
                                     <Phone size={16} />
-                                    <span>+36 30 123 4567</span>
+                                    <span>06 30 609 0401</span>
                                 </a>
                             </div>
                         </div>

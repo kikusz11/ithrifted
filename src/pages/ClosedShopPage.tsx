@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { MapPin, Mail, Phone, Clock, ArrowDown } from 'lucide-react';
 import heroBg from '../assets/hero_bg.jpg';
+import SEO from '../components/SEO';
 
 interface Drop {
     id: string;
@@ -155,6 +156,54 @@ export default function ClosedShopPage() {
 
     return (
         <div className="font-sans selection:bg-stone-300 selection:text-stone-900 bg-stone-50 text-stone-900">
+            <SEO
+                title="iThrifted - Prémium Vintage & Streetwear | Budapest"
+                description="Fedezd fel Budapest prémium vintage és streetwear üzletét. Egyedi, válogatott márkás használt ruhák (Nike, Adidas, Ralph Lauren, Carhartt) a belváros szívében, a Victor Hugo utcában."
+                scripts={[
+                    {
+                        type: 'application/ld+json',
+                        innerHTML: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "ClothingStore",
+                            "name": "iThrifted",
+                            "image": [
+                                "https://ithrifted.hu/logo.png"
+                            ],
+                            "address": {
+                                "@type": "PostalAddress",
+                                "streetAddress": "Victor Hugo utca 2",
+                                "addressLocality": "Budapest",
+                                "postalCode": "1132",
+                                "addressCountry": "HU"
+                            },
+                            "geo": {
+                                "@type": "GeoCoordinates",
+                                "latitude": 47.514789,
+                                "longitude": 19.055848
+                            },
+                            "url": "https://ithrifted.hu",
+                            "telephone": "+36306090401",
+                            "openingHoursSpecification": [
+                                {
+                                    "@type": "OpeningHoursSpecification",
+                                    "dayOfWeek": [
+                                        "Tuesday",
+                                        "Wednesday",
+                                        "Thursday",
+                                        "Friday"
+                                    ],
+                                    "opens": "14:00",
+                                    "closes": "20:00"
+                                }
+                            ],
+                            "sameAs": [
+                                "https://www.instagram.com/i_thrifted_",
+                                "https://www.tiktok.com/@danibertok1"
+                            ]
+                        })
+                    }
+                ]}
+            />
 
             {/* BRAND HERO SECTION */}
             <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20">
@@ -340,8 +389,8 @@ export default function ClosedShopPage() {
                                             <div className="p-2 bg-stone-100 rounded-lg text-stone-800">
                                                 <Phone size={20} />
                                             </div>
-                                            <a href="tel:+36301234567" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
-                                                +36 30 123 4567
+                                            <a href="tel:+36306090401" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+                                                06 30 609 0401
                                             </a>
                                         </div>
                                     </div>

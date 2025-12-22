@@ -25,9 +25,9 @@ export default function ClosedShopFooter() {
                             <Mail size={18} className="text-stone-400 group-hover:text-indigo-600" />
                             <span>info@ithrifted.hu</span>
                         </a>
-                        <a href="tel:+36301234567" className="flex items-center justify-center md:justify-start gap-2 text-stone-600 hover:text-indigo-600 transition-colors">
+                        <a href="tel:+36306090401" className="flex items-center justify-center md:justify-start gap-2 text-stone-600 hover:text-indigo-600 transition-colors">
                             <Phone size={18} className="text-stone-400 group-hover:text-indigo-600" />
-                            <span>+36 30 123 4567</span>
+                            <span>+36 30 609 0401</span>
                         </a>
                     </div>
                 </div>
