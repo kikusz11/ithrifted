@@ -7,12 +7,17 @@ interface GlassCardProps {
 }
 
 export default function GlassCard({ children, className = '', variant = 'default' }: GlassCardProps) {
-  const baseClasses = 'backdrop-blur-xl border border-white/10 rounded-2xl';
-  
+  // Updated for Light Brown/White Theme
+  // Old: backdrop-blur-xl border border-white/10 rounded-2xl
+  const baseClasses = 'rounded-2xl transition-all duration-300';
+
   const variants = {
-    default: 'bg-white/5 shadow-2xl shadow-black/20',
-    elevated: 'bg-white/8 shadow-2xl shadow-black/30 border-white/20',
-    subtle: 'bg-white/3 shadow-lg shadow-black/10'
+    // White card with soft shadow
+    default: 'bg-white shadow-lg border border-stone-100',
+    // Higher elevation
+    elevated: 'bg-white shadow-2xl border border-stone-200',
+    // Subtle offset background
+    subtle: 'bg-stone-50 border border-stone-200 shadow-sm'
   };
 
   return (

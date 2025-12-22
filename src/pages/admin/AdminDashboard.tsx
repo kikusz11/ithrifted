@@ -67,9 +67,9 @@ export default function AdminDashboard() {
     // Ez a fő konténer kapja meg a belső térközt
     <div className="grid grid-cols-1 gap-8 p-4 md:p-8">
       {/* Üdvözlő kártya */}
-      <div className="mb-8 p-6 bg-gradient-to-br from-indigo-800 to-purple-800 rounded-xl shadow-lg">
+      <div className="mb-8 p-6 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl shadow-lg">
         <h1 className="text-3xl font-bold text-white items-center justify-center text-center mb-4">Irányítópult</h1>
-        <p className="text-indigo-200 itmes-center justify-center text-center mt-4">Üdv újra, {user?.email || 'Admin'}!</p>
+        <p className="text-indigo-100 itmes-center justify-center text-center mt-4">Üdv újra, {user?.email || 'Admin'}!</p>
       </div>
 
       {/* Statisztikai kártyák - A grid osztályok itt vannak a wrapper div-en */}
@@ -94,13 +94,13 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
-  <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg flex flex-col items-center justify-center gap-3 border border-white/10 text-center">
-    <div className="p-3 bg-indigo-600/30 rounded-full">
-      <Icon className="w-7 h-7 text-indigo-300" />
+  <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center gap-3 border border-stone-200 text-center hover:shadow-lg transition-shadow">
+    <div className="p-3 bg-indigo-50 rounded-full">
+      <Icon className="w-7 h-7 text-indigo-600" />
     </div>
     <div>
-      <p className="text-3xl font-bold text-white">{value}</p>
-      <p className="text-sm font-medium text-gray-400">{title}</p>
+      <p className="text-3xl font-bold text-stone-900">{value}</p>
+      <p className="text-sm font-medium text-stone-500">{title}</p>
     </div>
   </div>
 );

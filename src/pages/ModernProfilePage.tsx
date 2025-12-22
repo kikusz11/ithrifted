@@ -258,61 +258,64 @@ export default function ModernProfilePage() {
 
   if (loading && !profileData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-300 font-medium">Profil betöltése...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-xl text-stone-600 font-medium">Profil betöltése...</p>
         </div>
       </div>
     );
   }
 
+  // NOTE: GlassCard inside needs to be compatible with light theme or we override it here.
+  // Assumes GlassCard renders a div with passed className.
+  // If GlassCard forces dark background, we might need to change it or provide custom classes.
+  // Using 'bg-white shadow-xl border border-stone-100' instead of glass effect for cleanliness in light theme.
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">{/* ...dekoráció... */}</div>
+    <div className="min-h-screen bg-stone-50 relative overflow-hidden text-stone-900">
       <div className="relative pt-24 md:pt-32 pb-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8 md:mb-12">{/* ...fejléc... */}</div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4">
-              <GlassCard variant="elevated" className="p-6 md:p-8 sticky top-24">
+              <div className="bg-white p-6 md:p-8 sticky top-24 rounded-2xl shadow-lg border border-stone-100">
                 {isEditingProfile ? (
                   <div className='space-y-6 animate-fadeIn'>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className='text-xl font-bold text-white'>Profil szerkesztése</h3>
-                      <ModernButton onClick={() => setIsEditingProfile(false)} variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                      <h3 className='text-xl font-bold text-stone-900'>Profil szerkesztése</h3>
+                      <ModernButton onClick={() => setIsEditingProfile(false)} variant="ghost" size="sm" className="text-stone-400 hover:text-stone-900">
                         <X size={20} />
                       </ModernButton>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Teljes név</label>
+                        <label className="block text-sm font-medium text-stone-500 mb-1">Teljes név</label>
                         <input
                           type="text"
                           name="display_name"
                           value={profileData?.display_name || ''}
                           onChange={handleProfileChange}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-900 focus:outline-none focus:border-indigo-500 transition-colors"
                           placeholder="Pl. Kiss János"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Telefonszám</label>
+                        <label className="block text-sm font-medium text-stone-500 mb-1">Telefonszám</label>
                         <input
                           type="tel"
                           name="phone"
                           value={profileData?.phone || ''}
                           onChange={handleProfileChange}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-900 focus:outline-none focus:border-indigo-500 transition-colors"
                           placeholder="+36 30 123 4567"
                         />
                       </div>
                     </div>
 
                     <div className='flex gap-3 pt-2'>
-                      <ModernButton onClick={() => setIsEditingProfile(false)} variant="secondary" className='flex-1'>Mégse</ModernButton>
-                      <ModernButton onClick={handleUpdateMainProfile} className='flex-1 bg-blue-600 hover:bg-blue-500'>Mentés</ModernButton>
+                      <ModernButton onClick={() => setIsEditingProfile(false)} variant="secondary" className='flex-1 border border-stone-300 text-stone-700 hover:bg-stone-100'>Mégse</ModernButton>
+                      <ModernButton onClick={handleUpdateMainProfile} className='flex-1 bg-indigo-600 hover:bg-indigo-500 text-white'>Mentés</ModernButton>
                     </div>
                   </div>
                 ) : (
@@ -320,35 +323,35 @@ export default function ModernProfilePage() {
                     <div className="relative mb-6 group">
                       <AvatarUpload avatarUrl={profileData?.avatar_url} onUpload={handleAvatarUpload} uploading={uploading} size="xl" />
                       {uploading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-full">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                         </div>
                       )}
-                      <div className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 cursor-pointer shadow-lg group-hover:scale-110 transition-transform" title="Kép módosítása">
+                      <div className="absolute bottom-0 right-0 bg-indigo-600 rounded-full p-2 cursor-pointer shadow-lg group-hover:scale-110 transition-transform" title="Kép módosítása">
                         <label htmlFor="single" className="cursor-pointer">
                           <Edit2 size={16} className="text-white" />
                         </label>
                       </div>
                     </div>
 
-                    <h2 className="text-2xl font-bold text-white mb-1">{profileData?.display_name || 'Névtelen Felhasználó'}</h2>
-                    <p className="text-gray-400 text-sm mb-6">{user?.email}</p>
+                    <h2 className="text-2xl font-bold text-stone-900 mb-1">{profileData?.display_name || 'Névtelen Felhasználó'}</h2>
+                    <p className="text-stone-500 text-sm mb-6">{user?.email}</p>
 
                     <div className="w-full space-y-4">
-                      <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3 border border-white/5">
-                        <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                      <div className="bg-stone-50 rounded-xl p-4 flex items-center gap-3 border border-stone-100">
+                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                           <Phone size={20} />
                         </div>
                         <div className="text-left flex-1">
-                          <p className="text-xs text-gray-500 uppercase tracking-wider">Telefonszám</p>
-                          <p className="text-white font-medium">{profileData?.phone || 'Nincs megadva'}</p>
+                          <p className="text-xs text-stone-500 uppercase tracking-wider">Telefonszám</p>
+                          <p className="text-stone-900 font-medium">{profileData?.phone || 'Nincs megadva'}</p>
                         </div>
                       </div>
                     </div>
 
                     <ModernButton
                       onClick={() => setIsEditingProfile(true)}
-                      className="w-full mt-8 flex items-center justify-center gap-2"
+                      className="w-full mt-8 flex items-center justify-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-900"
                       variant="secondary"
                     >
                       <Edit2 size={16} />
@@ -356,29 +359,29 @@ export default function ModernProfilePage() {
                     </ModernButton>
                   </div>
                 )}
-              </GlassCard>
+              </div>
             </div>
 
             <div className="lg:col-span-8 space-y-8">
               {/* Coupons Section */}
-              <GlassCard className="p-6">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-stone-100">
                 <div className="flex items-center gap-3 mb-6">
-                  <Ticket className="text-blue-400" size={24} />
-                  <h3 className="text-xl font-bold text-white">Kuponjaim</h3>
+                  <Ticket className="text-indigo-600" size={24} />
+                  <h3 className="text-xl font-bold text-stone-900">Kuponjaim</h3>
                 </div>
                 {userCoupons.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userCoupons.map((uc, idx) => (
-                      <div key={idx} className={`bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center group hover:border-blue-500/50 transition-colors ${uc.is_used ? 'opacity-50' : ''}`}>
+                      <div key={idx} className={`bg-stone-50 border border-stone-200 rounded-xl p-4 flex justify-between items-center group hover:border-indigo-500/50 transition-colors ${uc.is_used ? 'opacity-50' : ''}`}>
                         <div>
-                          <p className="text-gray-400 text-xs mb-1">{uc.coupon.description}</p>
-                          <p className="text-xl font-mono font-bold text-white tracking-wider">{uc.coupon.code}</p>
-                          <p className="text-green-400 text-sm font-medium">
+                          <p className="text-stone-500 text-xs mb-1">{uc.coupon.description}</p>
+                          <p className="text-xl font-mono font-bold text-stone-900 tracking-wider">{uc.coupon.code}</p>
+                          <p className="text-green-600 text-sm font-medium">
                             {uc.coupon.discount_type === 'percentage'
                               ? `${uc.coupon.discount_amount}% kedvezmény`
                               : `${uc.coupon.discount_amount} Ft kedvezmény`}
                           </p>
-                          {uc.is_used && <p className="text-red-400 text-xs mt-1">Felhasználva</p>}
+                          {uc.is_used && <p className="text-red-500 text-xs mt-1">Felhasználva</p>}
                         </div>
                         {!uc.is_used && (
                           <ModernButton
@@ -388,7 +391,7 @@ export default function ModernProfilePage() {
                               navigator.clipboard.writeText(uc.coupon.code);
                               alert('Kuponkód másolva!');
                             }}
-                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-white hover:bg-stone-100 text-stone-700 border border-stone-200"
                           >
                             <Copy size={16} />
                           </ModernButton>
@@ -397,11 +400,11 @@ export default function ModernProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-stone-400">
                     <p>Nincs elérhető kuponod.</p>
                   </div>
                 )}
-              </GlassCard>
+              </div>
 
               {isEditingShipping ? (
                 <AddressForm address={profileData?.shipping_address} title="Szállítási Cím" onChange={handleAddressChange} onSave={(e) => { e.preventDefault(); handleUpdateAddress('shipping_address'); }} onCancel={() => setIsEditingShipping(false)} addressType="shipping_address" />

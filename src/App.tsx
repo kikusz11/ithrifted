@@ -1,10 +1,12 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 
 // Komponensek
 import Header from './components/Header.tsx';
+import ClosedShopHeader from './components/ClosedShopHeader.tsx';
 import Footer from './components/Footer';
+import ClosedShopFooter from './components/ClosedShopFooter';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import AdminLayout from './components/admin/AdminLayout.tsx';
 import SpinWheelWidget from './components/marketing/SpinWheelWidget.tsx';
@@ -63,7 +65,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen bg-stone-900 text-white flex items-center justify-center">Betöltés...</div>;
+    return <div className="min-h-screen bg-stone-50 text-stone-900 flex items-center justify-center">Betöltés...</div>;
   }
 
   return (
@@ -89,7 +91,7 @@ function App() {
 
           <Route path="/*" element={
             isShopOpen ? (
-              <div className="flex flex-col min-h-screen bg-stone-900 text-white">
+              <div className="flex flex-col min-h-screen bg-stone-50 text-stone-900">
                 <Header />
                 <main className="flex-grow pt-24">
                   <Routes>
@@ -106,7 +108,19 @@ function App() {
                 <Footer />
               </div>
             ) : (
-              <ClosedShopPage />
+              <div className="flex flex-col min-h-screen bg-stone-50 text-stone-900">
+                <ClosedShopHeader />
+                <main className="flex-grow pt-14">
+                  <Routes>
+                    <Route path="/" element={<ClosedShopPage />} />
+                    <Route path="/profile" element={<ModernProfilePage />} />
+                    <Route path="/orders" element={<UserOrdersPage />} />
+                    {/* Redirect everything else to Closed Home */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </main>
+                <ClosedShopFooter />
+              </div>
             )
           } />
         </Routes>
