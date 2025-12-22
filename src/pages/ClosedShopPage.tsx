@@ -172,7 +172,7 @@ export default function ClosedShopPage() {
                 </div>
 
                 <div className="relative z-20 max-w-5xl w-full">
-                    <h1 className="text-7xl md:text-9xl font-black text-black tracking-[0.25em] mb-4 lowercase drop-shadow-[0_0_25px_rgba(255,255,255,1)] animate-fadeInUp">
+                    <h1 className="text-5xl sm:text-7xl md:text-9xl font-black text-black tracking-widest md:tracking-[0.25em] mb-4 lowercase drop-shadow-[0_0_25px_rgba(255,255,255,1)] animate-fadeInUp w-full px-2">
                         ithrifted
                     </h1>
                     <p className="text-lg md:text-2xl text-black font-bold tracking-wide max-w-3xl mx-auto mb-10 animate-fadeInUp [animation-delay:200ms]">
@@ -292,7 +292,7 @@ export default function ClosedShopPage() {
                                 <div>
                                     <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6">Találkozzunk Személyesen!</h2>
                                     <p className="text-stone-600 text-lg leading-relaxed">
-                                        Gyere el a bemutatótermünkbe, ahol személyesen is felpróbálhatod a legújabb szerzeményeket.
+                                        Gyere el üzletünkbe, ahol személyesen felpróbálhatod a legújabb szerzeményeket.
                                         Az üzlet nyitva tart, gyere bátran!
                                     </p>
                                 </div>
