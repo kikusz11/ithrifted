@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { supabase } from '../lib/supabaseClient';
 import LoginModal from './LoginModal';
 import { useCart } from '../contexts/CartContext';
+import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
 import { Search, Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -25,7 +26,6 @@ export default function Header() {
   const [categories, setCategories] = useState<any[]>([]); // Dynamic categories objects
   const [menuGroups, setMenuGroups] = useState<string[]>([]);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [expandedGender, setExpandedGender] = useState<string | null>(null);
 
   // Live Search State
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -173,7 +173,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 bg-stone-900/80 backdrop-blur-md border-b border-white/10 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-stone-900/80 dark:bg-stone-950/90 backdrop-blur-md border-b border-white/10 dark:border-white/5 shadow-lg">
         <div className="container mx-auto flex justify-between items-center p-4">
           <Link to="/" className="flex items-center gap-2">
             <img
@@ -181,13 +181,13 @@ export default function Header() {
               alt="iThrifted Logo"
               className="h-16 w-auto"
             />
-            <span className="hidden md:block text-2xl font-bold text-white tracking-wider">
+            <span className="hidden md:block text-2xl font-bold text-white dark:text-stone-100 tracking-wider">
               ithrifted
             </span>
           </Link>
 
           {/* Search Bar with Integrated Category Dropdown */}
-          <form ref={searchRef} onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-2xl mx-8 relative bg-white/10 border border-white/20 rounded-full focus-within:ring-1 focus-within:ring-stone-500 transition-all">
+          <form ref={searchRef} onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-2xl mx-8 relative bg-white/10 dark:bg-stone-800/50 border border-white/20 dark:border-stone-700 rounded-full focus-within:ring-1 focus-within:ring-stone-500 dark:focus-within:ring-stone-400 transition-all">
 
             {/* Combined Custom Filter Dropdown */}
             <div
@@ -198,7 +198,7 @@ export default function Header() {
             >
               <button
                 type="button"
-                className="flex items-center gap-2 h-full px-4 py-2.5 text-white hover:bg-white/5 transition-all text-sm border-r border-white/10 rounded-l-full shrink-0"
+                className="flex items-center gap-2 h-full px-4 py-2.5 text-white dark:text-stone-200 hover:bg-white/5 dark:hover:bg-stone-700/50 transition-all text-sm border-r border-white/10 dark:border-stone-700 rounded-l-full shrink-0"
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
               >
                 <span className="truncate font-medium">
@@ -209,7 +209,7 @@ export default function Header() {
 
               {isCategoryOpen && (
                 <div className="absolute top-full left-0 pt-3 w-64 z-[100] animate-fadeIn">
-                  <div className="bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl backdrop-blur-3xl ring-1 ring-black/5 py-2">
+                  <div className="bg-[#1a1a1a] dark:bg-stone-900 border border-white/10 dark:border-stone-700 rounded-xl shadow-2xl backdrop-blur-3xl ring-1 ring-black/5 py-2">
                     {menuGroups.map((g) => {
                       const groupCats = categories.filter(c =>
                         c.assigned_gender === g || (['male', 'female', 'unisex'].includes(g) && c.assigned_gender === 'all')
@@ -221,7 +221,6 @@ export default function Header() {
                         <div
                           key={g}
                           className="group/item relative"
-                          onMouseEnter={() => setExpandedGender(g)}
                         >
                           <button
                             type="button"
@@ -238,7 +237,7 @@ export default function Header() {
                           </button>
 
                           {/* Flyout Submenu */}
-                          <div className="hidden group-hover/item:block absolute left-full top-0 w-56 ml-2 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl backdrop-blur-3xl overflow-hidden z-[100]">
+                          <div className="hidden group-hover/item:block absolute left-full top-0 w-56 ml-2 bg-[#1a1a1a] dark:bg-stone-900 border border-white/10 dark:border-stone-700 rounded-xl shadow-2xl backdrop-blur-3xl overflow-hidden z-[100]">
                             <div className="py-2">
                               {/* Option to select just the group */}
                               <button
@@ -288,7 +287,7 @@ export default function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
-                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-stone-400 py-2.5 px-4 text-sm rounded-r-full outline-none"
+                className="w-full bg-transparent border-none focus:ring-0 text-white dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 py-2.5 px-4 text-sm rounded-r-full outline-none"
               />
               <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white transition-colors p-1">
                 <Search className="w-4 h-4" />
@@ -297,7 +296,7 @@ export default function Header() {
 
             {/* Live Search Results Dropdown */}
             {showResults && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 dark:bg-stone-800 border border-gray-700 dark:border-stone-600 rounded-lg shadow-xl overflow-hidden z-50">
                 {searchResults.map(product => (
                   <Link
                     key={product.id}
@@ -306,7 +305,7 @@ export default function Header() {
                       setShowResults(false);
                       setSearchQuery('');
                     }}
-                    className="flex items-center gap-3 p-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0"
+                    className="flex items-center gap-3 p-3 hover:bg-gray-800 dark:hover:bg-stone-700 transition-colors border-b border-gray-800 dark:border-stone-700 last:border-0"
                   >
                     <img
                       src={product.image_url || 'https://placehold.co/40x40'}
@@ -330,6 +329,7 @@ export default function Header() {
           </form>
 
           <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
             {!loading && (
               !user ? (
                 <button
@@ -351,7 +351,7 @@ export default function Header() {
                       )}
                     </button>
                     {isCartOpen && (
-                      <div className="absolute right-0 mt-2 w-72 md:w-80 bg-black/98 rounded-lg shadow-lg z-50 border border-white/20 text-white">
+                      <div className="absolute right-0 mt-2 w-72 md:w-80 bg-black/98 dark:bg-stone-900/98 rounded-lg shadow-lg z-50 border border-white/20 dark:border-stone-700 text-white dark:text-stone-100">
                         <div className="p-4">
                           <h3 className="font-bold text-lg mb-3">Kosár tartalma</h3>
                           {cart.length > 0 ? (
@@ -393,7 +393,7 @@ export default function Header() {
                       <ProfileIcon />
                     </button>
                     {isProfileDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-black/50 backdrop-blur-xl rounded-md shadow-lg py-1 z-50 border border-white/20">
+                      <div className="absolute right-0 mt-2 w-48 bg-black/50 dark:bg-stone-900/90 backdrop-blur-xl rounded-md shadow-lg py-1 z-50 border border-white/20 dark:border-stone-700">
                         <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-700">{user.email}</div>
                         <Link to="/profile" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-200 hover:bg-stone-600 transition">Profilom</Link>
                         <Link to="/orders" onClick={() => setIsProfileDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-200 hover:bg-stone-600 transition">Rendeléseim</Link>
@@ -427,7 +427,7 @@ export default function Header() {
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-gray-900 border-b border-white/10 shadow-xl p-4 animate-fadeIn">
+          <div className="md:hidden absolute top-full left-0 right-0 bg-gray-900 dark:bg-stone-900 border-b border-white/10 dark:border-stone-700 shadow-xl p-4 animate-fadeIn">
             <form ref={mobileSearchRef} onSubmit={(e) => { handleSearch(e); setIsMobileMenuOpen(false); }} className="relative mb-4">
               <input
                 type="text"
@@ -435,7 +435,7 @@ export default function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
-                className="w-full bg-white/10 border border-white/20 rounded-lg py-2 pl-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white/10 dark:bg-stone-800/50 border border-white/20 dark:border-stone-700 rounded-lg py-2 pl-4 pr-10 text-white dark:text-stone-200 placeholder-gray-400 dark:placeholder-stone-500 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400"
               />
               <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Search className="w-5 h-5" />

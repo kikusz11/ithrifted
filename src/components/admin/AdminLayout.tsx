@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar Container */}
       <div className={`
         fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out
-        md:relative md:translate-x-0 flex flex-col
+        md:sticky md:top-0 md:h-screen md:translate-x-0 flex flex-col
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <Sidebar onClose={() => setIsSidebarOpen(false)} />

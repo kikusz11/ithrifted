@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 import React from 'react';
-import GlassCard from '@/components/ui/GlassCard';
 import AvatarUpload from '@/components/profile/AvatarUpload';
 import AddressCard from '@/components/profile/AddressCard';
 import AddressForm from '@/components/profile/AddressForm';

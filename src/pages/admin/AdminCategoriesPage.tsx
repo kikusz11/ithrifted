@@ -17,7 +17,6 @@ interface Category {
 export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [flatCategories, setFlatCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -41,7 +40,6 @@ export default function AdminCategoriesPage() {
             setFlatCategories(cats);
             setCategories(buildHierarchy(cats));
         } catch (error) { console.error(error); toast.error('Hiba a betöltéskor'); }
-        finally { setLoading(false); }
     };
 
     const buildHierarchy = (cats: Category[]) => {

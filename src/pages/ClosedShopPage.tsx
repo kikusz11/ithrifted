@@ -155,7 +155,7 @@ export default function ClosedShopPage() {
     };
 
     return (
-        <div className="font-sans selection:bg-stone-300 selection:text-stone-900 bg-stone-50 text-stone-900">
+        <div className="font-sans selection:bg-stone-300 selection:text-stone-900 bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-300">
             <SEO
                 title="iThrifted - Prémium Vintage & Streetwear | Budapest"
                 description="Fedezd fel Budapest prémium vintage és streetwear üzletét. Egyedi, válogatott márkás használt ruhák (Nike, Adidas, Ralph Lauren, Carhartt) a belváros szívében, a Victor Hugo utcában."
@@ -208,23 +208,29 @@ export default function ClosedShopPage() {
             {/* BRAND HERO SECTION */}
             <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20">
                 {/* Background Image - Refined stone overlay */}
-                <div className="absolute top-0 left-0 w-full h-full bg-stone-100 z-0 text-stone-900">
+                <div className="absolute top-0 left-0 w-full h-full bg-stone-100 dark:bg-stone-950 z-0 text-stone-900 dark:text-white overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-b from-stone-900/30 via-transparent to-stone-50 z-10"></div>
-                    <img
-                        src={heroBg}
-                        alt="Vintage Clothes Background"
-                        className="w-full h-[120%] object-cover opacity-90"
+                    {/* Parallax Wrapper */}
+                    <div
+                        className="w-full h-[120%] absolute top-0 left-0"
                         style={{
                             transform: `translateY(${scrollY * 0.4}px)`,
+                            willChange: 'transform'
                         }}
-                    />
+                    >
+                        <img
+                            src={heroBg}
+                            alt="Vintage Clothes Background"
+                            className="w-full h-full object-cover opacity-90 animate-zoomOut"
+                        />
+                    </div>
                 </div>
 
                 <div className="relative z-20 max-w-5xl w-full">
-                    <h1 className="text-5xl sm:text-7xl md:text-9xl font-black text-black tracking-widest md:tracking-[0.25em] mb-4 lowercase drop-shadow-[0_0_25px_rgba(255,255,255,1)] animate-fadeInUp w-full px-2">
+                    <h1 className="text-5xl sm:text-7xl md:text-9xl font-black text-black dark:text-white tracking-widest md:tracking-[0.25em] mb-4 lowercase drop-shadow-[0_0_25px_rgba(255,255,255,1)] dark:drop-shadow-[0_0_35px_rgba(255,255,255,0.5)] animate-fadeInUp w-full px-2">
                         ithrifted
                     </h1>
-                    <p className="text-lg md:text-2xl text-black font-bold tracking-wide max-w-3xl mx-auto mb-10 animate-fadeInUp [animation-delay:200ms]">
+                    <p className="text-lg md:text-2xl text-black dark:text-stone-200 font-bold tracking-wide max-w-3xl mx-auto mb-10 animate-fadeInUp [animation-delay:200ms]">
                         Vintage/streetwear secondhand clothing store
                     </p>
 
@@ -258,31 +264,31 @@ export default function ClosedShopPage() {
             </section>
 
             {/* ABOUT SECTION (Philosophy & Vision) */}
-            <section className="py-24 bg-stone-50 overflow-hidden">
+            <section className="py-24 bg-stone-50 dark:bg-stone-950 overflow-hidden transition-colors duration-300">
                 <div className="container mx-auto px-4 max-w-7xl">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         {/* Left Column: Text Content */}
                         <div className="text-left space-y-8">
                             <ScrollReveal>
                                 <span className="text-stone-500 font-bold tracking-widest text-sm uppercase block mb-4">Filozófiánk</span>
-                                <h2 className="text-4xl md:text-6xl font-black text-stone-900 leading-[1.1] tracking-tighter">
+                                <h2 className="text-4xl md:text-6xl font-black text-stone-900 dark:text-stone-100 leading-[1.1] tracking-tighter">
                                     Több mint ruha. <br />
-                                    <span className="text-indigo-600">Stílus és Jövő.</span>
+                                    <span className="text-indigo-600 dark:text-indigo-400">Stílus és Jövő.</span>
                                 </h2>
                             </ScrollReveal>
 
                             <ScrollReveal delay={200}>
-                                <div className="space-y-6 text-lg md:text-xl text-stone-800 leading-relaxed font-normal">
+                                <div className="space-y-6 text-lg md:text-xl text-stone-800 dark:text-stone-300 leading-relaxed font-normal">
                                     <p>
-                                        Az <strong className="text-stone-900 font-bold">iThrifted</strong> küldetése egyszerű: bebizonyítani, hogy a fenntartható divat nem jelent kompromisszumot az esztétika terén.
+                                        Az <strong className="text-stone-900 dark:text-white font-bold">iThrifted</strong> küldetése egyszerű: bebizonyítani, hogy a fenntartható divat nem jelent kompromisszumot az esztétika terén.
                                     </p>
                                     <p>
-                                        Minden egyes darabot <span className="text-stone-900 font-medium">kézzel válogatunk, tisztítunk és gondozunk</span>, hogy a legértékesebb vintage kincsek új életet kaphassanak a te ruhatáradban is.
+                                        Minden egyes darabot <span className="text-stone-900 dark:text-white font-medium">kézzel válogatunk, tisztítunk és gondozunk</span>, hogy a legértékesebb vintage kincsek új életet kaphassanak a te ruhatáradban is.
                                     </p>
-                                    <p className="pt-4 border-l-4 border-indigo-100 pl-6 italic text-stone-600">
+                                    <p className="pt-4 border-l-4 border-indigo-100 dark:border-indigo-900/50 pl-6 italic text-stone-600 dark:text-stone-400">
                                         "Hiszünk abban, hogy az öltözködés a legerősebb önkifejezési forma. Boltunkban nem tömegtermékeket, hanem történeteket találsz."
                                     </p>
-                                    <p className="text-stone-900 font-bold">
+                                    <p className="text-stone-900 dark:text-white font-bold">
                                         Légy te is a tudatos változás része!
                                     </p>
                                 </div>
@@ -298,7 +304,10 @@ export default function ClosedShopPage() {
                                     <img
                                         src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop"
                                         alt="Vintage curation"
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                        className="w-full h-[160%] object-cover transition-transform duration-75 ease-linear will-change-transform"
+                                        style={{
+                                            transform: `translateY(calc(-20% + ${(scrollY - 1000) * 0.12}px))`
+                                        }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-stone-900/20 to-transparent"></div>
                                 </div>
@@ -314,8 +323,8 @@ export default function ClosedShopPage() {
             </section>
 
             {/* LOCATION & CONTACT SECTION (Light Grey Theme) */}
-            <section id="location" className="py-24 bg-whitish relative border-t border-stone-200 overflow-hidden">
-                <div className="absolute inset-0 bg-stone-100/50 skew-y-3 origin-top-left -z-10 h-full w-full"></div>
+            <section id="location" className="py-24 bg-whitish dark:bg-stone-900 relative border-t border-stone-200 dark:border-stone-800 overflow-hidden transition-colors duration-300">
+                <div className="absolute inset-0 bg-stone-100/50 dark:bg-black/20 skew-y-3 origin-top-left -z-10 h-full w-full"></div>
 
                 <div className="container mx-auto px-4 max-w-7xl">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -339,8 +348,8 @@ export default function ClosedShopPage() {
                         <div className="space-y-10">
                             <ScrollReveal delay={100}>
                                 <div>
-                                    <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6">Találkozzunk Személyesen!</h2>
-                                    <p className="text-stone-600 text-lg leading-relaxed">
+                                    <h2 className="text-4xl md:text-5xl font-bold text-stone-900 dark:text-white mb-6">Találkozzunk Személyesen!</h2>
+                                    <p className="text-stone-600 dark:text-stone-300 text-lg leading-relaxed">
                                         Gyere el üzletünkbe, ahol személyesen felpróbálhatod a legújabb szerzeményeket.
                                         Az üzlet nyitva tart, gyere bátran!
                                     </p>
@@ -349,47 +358,47 @@ export default function ClosedShopPage() {
 
                             <div className="space-y-6">
                                 <ScrollReveal delay={200}>
-                                    <div className="flex items-start gap-6 p-6 rounded-2xl bg-white shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
-                                        <div className="p-3 bg-stone-100 rounded-xl text-stone-800">
+                                    <div className="flex items-start gap-6 p-6 rounded-2xl bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 hover:shadow-md transition-shadow">
+                                        <div className="p-3 bg-stone-100 dark:bg-stone-700 rounded-xl text-stone-800 dark:text-stone-200">
                                             <MapPin size={28} />
                                         </div>
                                         <div>
-                                            <h3 className="text-stone-900 font-bold text-lg mb-1">Címünk</h3>
-                                            <p className="text-stone-600 text-base">1132 Budapest, Victor Hugo utca 2.</p>
+                                            <h3 className="text-stone-900 dark:text-white font-bold text-lg mb-1">Címünk</h3>
+                                            <p className="text-stone-600 dark:text-stone-300 text-base">1132 Budapest, Victor Hugo utca 2.</p>
                                         </div>
                                     </div>
                                 </ScrollReveal>
 
                                 <ScrollReveal delay={300}>
-                                    <div className="flex items-start gap-6 p-6 rounded-2xl bg-white shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
-                                        <div className="p-3 bg-stone-100 rounded-xl text-stone-800">
+                                    <div className="flex items-start gap-6 p-6 rounded-2xl bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 hover:shadow-md transition-shadow">
+                                        <div className="p-3 bg-stone-100 dark:bg-stone-700 rounded-xl text-stone-800 dark:text-stone-200">
                                             <Clock size={28} />
                                         </div>
                                         <div>
-                                            <h3 className="text-stone-900 font-bold text-lg mb-1">Nyitvatartás</h3>
-                                            <p className="text-stone-600 text-base">Hétfő: Zárva</p>
-                                            <p className="text-stone-600 text-base">Kedd - Péntek: 14:00 - 20:00</p>
-                                            <p className="text-stone-600 text-base">Szombat: Zárva</p>
-                                            <p className="text-stone-600 text-base">Vasárnap: Zárva</p>
+                                            <h3 className="text-stone-900 dark:text-white font-bold text-lg mb-1">Nyitvatartás</h3>
+                                            <p className="text-stone-600 dark:text-stone-300 text-base">Hétfő: Zárva</p>
+                                            <p className="text-stone-600 dark:text-stone-300 text-base">Kedd - Péntek: 14:00 - 20:00</p>
+                                            <p className="text-stone-600 dark:text-stone-300 text-base">Szombat: Zárva</p>
+                                            <p className="text-stone-600 dark:text-stone-300 text-base">Vasárnap: Zárva</p>
                                         </div>
                                     </div>
                                 </ScrollReveal>
 
                                 <ScrollReveal delay={400}>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
-                                            <div className="p-2 bg-stone-100 rounded-lg text-stone-800">
+                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 hover:shadow-md transition-shadow">
+                                            <div className="p-2 bg-stone-100 dark:bg-stone-700 rounded-lg text-stone-800 dark:text-stone-200">
                                                 <Mail size={20} />
                                             </div>
-                                            <a href="mailto:info@ithrifted.hu" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+                                            <a href="mailto:info@ithrifted.hu" className="text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white font-medium transition-colors">
                                                 info@ithrifted.hu
                                             </a>
                                         </div>
-                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
-                                            <div className="p-2 bg-stone-100 rounded-lg text-stone-800">
+                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 hover:shadow-md transition-shadow">
+                                            <div className="p-2 bg-stone-100 dark:bg-stone-700 rounded-lg text-stone-800 dark:text-stone-200">
                                                 <Phone size={20} />
                                             </div>
-                                            <a href="tel:+36306090401" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+                                            <a href="tel:+36306090401" className="text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white font-medium transition-colors">
                                                 06 30 609 0401
                                             </a>
                                         </div>
@@ -402,22 +411,22 @@ export default function ClosedShopPage() {
             </section>
 
             {/* ONLINE DROP / COUNTDOWN SECTION (Light Theme Adaptation) */}
-            <section id="online-drop" className="relative py-24 px-4 bg-stone-50 border-t border-stone-200 text-center overflow-hidden">
+            <section id="online-drop" className="relative py-24 px-4 bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 text-center overflow-hidden transition-colors duration-300">
                 <div className="max-w-4xl mx-auto">
                     {loading ? (
-                        <div className="animate-pulse flex justify-center"><div className="w-8 h-8 border-4 border-stone-800 border-t-transparent rounded-full animate-spin"></div></div>
+                        <div className="animate-pulse flex justify-center"><div className="w-8 h-8 border-4 border-stone-800 dark:border-white border-t-transparent rounded-full animate-spin"></div></div>
                     ) : nextDrop && timeLeft ? (
                         <div className="animate-fadeIn">
                             <ScrollReveal>
-                                <span className="inline-block py-1 px-4 rounded-full bg-stone-200 text-stone-700 text-sm font-bold tracking-wider mb-8 border border-stone-300">
+                                <span className="inline-block py-1 px-4 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-sm font-bold tracking-wider mb-8 border border-stone-300 dark:border-stone-700">
                                     KÖVETKEZŐ ONLINE DROP
                                 </span>
-                                <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 text-stone-900">
+                                <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 text-stone-900 dark:text-white">
                                     {nextDrop.name}
                                 </h2>
                             </ScrollReveal>
                             <ScrollReveal delay={200}>
-                                <div className="flex justify-center flex-wrap items-baseline gap-6 md:gap-12 text-stone-900 mb-16">
+                                <div className="flex justify-center flex-wrap items-baseline gap-6 md:gap-12 text-stone-900 dark:text-white mb-16">
                                     {[
                                         { label: 'Nap', value: timeLeft.days },
                                         { label: 'Óra', value: timeLeft.hours },
@@ -425,10 +434,10 @@ export default function ClosedShopPage() {
                                         { label: 'Mp', value: timeLeft.seconds }
                                     ].map((item) => (
                                         <div key={item.label} className="flex flex-col items-center">
-                                            <span className="text-4xl md:text-6xl font-black tabular-nums tracking-tighter text-stone-800 bg-white px-6 py-4 rounded-2xl shadow-sm border border-stone-100">
+                                            <span className="text-4xl md:text-6xl font-black tabular-nums tracking-tighter text-stone-800 dark:text-white bg-white dark:bg-stone-800 px-6 py-4 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700">
                                                 {String(item.value).padStart(2, '0')}
                                             </span>
-                                            <span className="text-xs uppercase tracking-widest text-stone-500 font-bold mt-4">{item.label}</span>
+                                            <span className="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 font-bold mt-4">{item.label}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -437,15 +446,15 @@ export default function ClosedShopPage() {
                     ) : (
                         <div className="mb-16 animate-fadeIn">
                             <ScrollReveal>
-                                <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6">
+                                <h2 className="text-4xl md:text-5xl font-bold text-stone-900 dark:text-white mb-6">
                                     Online Webshop
                                 </h2>
-                                <p className="text-xl md:text-2xl text-stone-600 mb-2 font-light">
-                                    <span className="text-stone-900 font-medium">Drop Rendszerben</span> működünk.
+                                <p className="text-xl md:text-2xl text-stone-600 dark:text-stone-300 mb-2 font-light">
+                                    <span className="text-stone-900 dark:text-white font-medium">Drop Rendszerben</span> működünk.
                                 </p>
                             </ScrollReveal>
                             <ScrollReveal delay={200}>
-                                <p className="text-lg text-stone-500 max-w-2xl mx-auto">
+                                <p className="text-lg text-stone-500 dark:text-stone-400 max-w-2xl mx-auto">
                                     Jelenleg nincs aktív online drop, de üzletünk nyitva tart! <br />
                                     Iratkozz fel, és értesítünk a következő online nyitásról.
                                 </p>
@@ -457,9 +466,9 @@ export default function ClosedShopPage() {
                     <ScrollReveal delay={300}>
                         <div className="max-w-md mx-auto relative group mt-12">
                             <div className="absolute -inset-1 bg-gradient-to-r from-stone-300 to-stone-400 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
-                            <div className="relative bg-white p-8 rounded-2xl border border-stone-100 shadow-xl text-left">
-                                <h3 className="text-xl font-bold mb-2 text-stone-900">Értesítést kérek</h3>
-                                <p className="text-stone-500 mb-6 text-sm">
+                            <div className="relative bg-white dark:bg-stone-800 p-8 rounded-2xl border border-stone-100 dark:border-stone-700 shadow-xl text-left">
+                                <h3 className="text-xl font-bold mb-2 text-stone-900 dark:text-white">Értesítést kérek</h3>
+                                <p className="text-stone-500 dark:text-stone-400 mb-6 text-sm">
                                     Ne maradj le a limitált darabokról. Csak akkor írunk, ha drop van.
                                 </p>
                                 <form onSubmit={handleSubscription} className="flex flex-col gap-3">
@@ -470,18 +479,18 @@ export default function ClosedShopPage() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         disabled={formLoading}
-                                        className="bg-stone-50 border border-stone-200 rounded-lg px-4 py-3 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-500 focus:bg-white transition-all w-full"
+                                        className="bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg px-4 py-3 text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-stone-500 focus:bg-white dark:focus:bg-stone-800 transition-all w-full"
                                     />
                                     <button
                                         type="submit"
                                         disabled={formLoading}
-                                        className="bg-stone-900 hover:bg-black text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full shadow-lg"
+                                        className="bg-stone-900 hover:bg-black dark:bg-white dark:hover:bg-stone-200 dark:text-black text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full shadow-lg"
                                     >
                                         {formLoading ? 'Feliratkozás...' : 'Feliratkozás'}
                                     </button>
                                 </form>
-                                {formMessage && <p className="text-green-600 mt-4 text-sm font-medium">{formMessage}</p>}
-                                {formError && <p className="text-red-500 mt-4 text-sm font-medium">{formError}</p>}
+                                {formMessage && <p className="text-green-600 dark:text-green-400 mt-4 text-sm font-medium">{formMessage}</p>}
+                                {formError && <p className="text-red-500 dark:text-red-400 mt-4 text-sm font-medium">{formError}</p>}
                             </div>
                         </div>
                     </ScrollReveal>

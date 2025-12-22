@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { supabase } from '../lib/supabaseClient';
 import LoginModal from './LoginModal';
 import { Menu, X } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const ProfileIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-stone-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
 
@@ -36,18 +37,19 @@ export default function ClosedShopHeader() {
 
     return (
         <>
-            <header className="fixed top-0 left-0 right-0 z-40 bg-white/70 backdrop-blur-md border-b border-stone-200 shadow-sm transition-colors duration-300">
+            <header className="fixed top-0 left-0 right-0 z-40 bg-white/70 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 shadow-sm transition-colors duration-300">
                 <div className="container mx-auto flex justify-between items-center py-2 px-4 relative">
                     {/* Brand Text - Moved to Left */}
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center">
-                            <span className="text-3xl font-black text-stone-900 tracking-tighter whitespace-nowrap">
+                            <span className="text-3xl font-black text-stone-900 dark:text-white tracking-tighter whitespace-nowrap">
                                 ithrifted
                             </span>
                         </Link>
                     </div>
 
                     <div className="hidden md:flex items-center gap-4">
+                        <ThemeToggle />
                         {!loading && (
                             !user ? (
                                 <button
@@ -94,7 +96,7 @@ export default function ClosedShopHeader() {
 
                 {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-stone-200 shadow-xl p-4 animate-fadeIn">
+                    <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-xl p-4 animate-fadeIn">
                         <div className="flex flex-col gap-2">
                             {!user ? (
                                 <button

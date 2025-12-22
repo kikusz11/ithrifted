@@ -2,38 +2,65 @@
 @import "tailwindcss";
 
 :root {
+  /* Custom animations */
+  --animate-fadeInUp: fadeInUp 1s ease-out forwards;
+  --animate-fadeIn: fadeIn 1.5s ease-out forwards;
+  --animate-zoomOut: zoomOut 1.5s ease-out forwards;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* Modern color palette with depth - Stone/Neutral Theme */
+
+  /* Modern color palette with depth - Stone/Neutral Theme (Light Mode) */
   --color-primary-50: #fafaf9;
   --color-primary-100: #f5f5f4;
   --color-primary-500: #78716c;
   --color-primary-600: #57534e;
   --color-primary-700: #44403c;
-  
-  /* Enhanced dark theme colors - Stone */
+
+  /* Light theme colors - Stone */
   --color-gray-50: #fafaf9;
   --color-gray-100: #f5f5f4;
   --color-gray-800: #292524;
   --color-gray-900: #1c1917;
   --color-gray-950: #0c0a09;
-  
-  /* Glassmorphism variables */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  
+
+  /* Glassmorphism variables for light mode */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
   /* Modern typography scale */
   --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
-  
+
   /* Enhanced spacing and sizing */
   --radius-xl: 24px;
   --radius-2xl: 32px;
   --spacing-section: 4rem;
+}
+
+/* Dark mode variables */
+.dark {
+  /* Dark mode color overrides */
+  --color-primary-50: #0c0a09;
+  --color-primary-100: #1c1917;
+  --color-primary-500: #a8a29e;
+  --color-primary-600: #d6d3d1;
+  --color-primary-700: #e7e5e4;
+
+  /* Dark theme colors */
+  --color-gray-50: #0c0a09;
+  --color-gray-100: #1c1917;
+  --color-gray-800: #e7e5e4;
+  --color-gray-900: #f5f5f4;
+  --color-gray-950: #fafaf9;
+
+  /* Glassmorphism variables for dark mode */
+  --glass-bg: rgba(0, 0, 0, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 #root {
@@ -44,41 +71,46 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
 }
 
 @layer components {
   .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
   }
 }
 
 @layer components {
   .modern-input {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
   }
 }
 
 @layer components {
   .modern modern-input:focus {
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(120, 113, 108, 0.1);
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px rgba(120, 113, 108, 0.1);
   }
 }
 
 @layer components {
   .modern gradient-text {
-  background: linear-gradient(135deg, #ffffff, #a8a29e);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+    background: linear-gradient(135deg, #ffffff, #a8a29e);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 
@@ -98,4 +130,35 @@ h1, h2, h3, h4, h5, h6 {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Animations - Manual Fallback */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    transform: scale(1.1);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+.animate-zoomOut {
+  animation: zoomOut 1.5s ease-out forwards;
 }

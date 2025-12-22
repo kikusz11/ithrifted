@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Ticket, Plus, Trash2, RefreshCw, X, Search, Gift, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, X } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 import ModernButton from '@/components/ui/ModernButton';
-import ModernInput from '@/components/ui/ModernInput'; // Assuming ModernInput is also theme-agnostic or needs distinct update
-import GlassCard from '@/components/ui/GlassCard';
 
 interface Coupon {
     id: string;
@@ -38,27 +36,10 @@ interface Coupon {
     discount_percent?: number;
 }
 
-interface Profile {
-    id: string;
-    user_id: string;
-    display_name: string;
-    email?: string;
-}
-
 export default function AdminCouponsPage() {
     const [coupons, setCoupons] = useState<Coupon[]>([]);
-    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
-    const [isWheelSettingsOpen, setIsWheelSettingsOpen] = useState(false);
-    const [wheelCoupons, setWheelCoupons] = useState<Coupon[]>([]);
-
-    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-    const [users, setUsers] = useState<Profile[]>([]);
-    const [selectedCouponId, setSelectedCouponId] = useState('');
-    const [assignmentTarget, setAssignmentTarget] = useState<'all' | 'selected'>('all');
-    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-    const [isAssigning, setIsAssigning] = useState(false);
 
     const [activeTab, setActiveTab] = useState('basic');
     const [formData, setFormData] = useState<Partial<Coupon>>({
@@ -89,14 +70,7 @@ export default function AdminCouponsPage() {
         spin_label: ''
     });
 
-    const [createSpinPrizeForm, setCreateSpinPrizeForm] = useState({
-        code: '',
-        discount_amount: 10,
-        discount_type: 'percentage' as 'percentage' | 'fixed_cart',
-        spin_probability: 50,
-        spin_color: '#3B82F6',
-        spin_label: ''
-    });
+
 
     const fetchCoupons = async () => {
         try {
@@ -106,30 +80,12 @@ export default function AdminCouponsPage() {
         } catch (error) {
             console.error('Error fetching coupons:', error);
             toast.error('Hiba történt a kuponok betöltésekor');
-        } finally {
-            setLoading(false);
         }
     };
 
     useEffect(() => { fetchCoupons(); }, []);
 
-    useEffect(() => {
-        if (isWheelSettingsOpen) {
-            setWheelCoupons(coupons.map(c => ({ ...c })));
-        }
-    }, [isWheelSettingsOpen, coupons]);
 
-    const fetchUsers = async () => {
-        try {
-            const { data, error } = await supabase.from('profiles').select('id, user_id, display_name').order('display_name');
-            if (error) throw error;
-            setUsers(data || []);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
-    };
-
-    useEffect(() => { if (isAssignModalOpen) fetchUsers(); }, [isAssignModalOpen]);
 
     const handleEditClick = (coupon: Coupon) => {
         setEditingCouponId(coupon.id);
@@ -152,18 +108,6 @@ export default function AdminCouponsPage() {
         } catch (err) { console.error(err); toast.error('Hiba a törlésnél'); }
     };
 
-    const handleDeleteExpired = async () => {
-        if (!confirm('Biztosan törölni szeretnéd az összes lejárt kupont?')) return;
-        try {
-            const now = new Date().toISOString();
-            const { error } = await supabase.from('coupons').delete().lt('expires_at', now);
-            if (error) throw error;
-            toast.success('Lejárt kuponok törölve');
-            fetchCoupons();
-        } catch (error) {
-            console.error(error); toast.error('Hiba a törlésnél');
-        }
-    }
 
     const handleSaveCoupon = async () => {
         if (!formData.code || !formData.discount_amount) {
@@ -199,32 +143,7 @@ export default function AdminCouponsPage() {
         }
     };
 
-    const handleSaveWheelSettings = async () => {
-        try {
-            const updates = wheelCoupons.map(c => ({
-                id: c.id,
-                code: c.code,
-                name: c.name,
-                description: c.description,
-                discount_type: c.discount_type,
-                discount_amount: c.discount_amount,
-                discount_percent: c.discount_type === 'percentage' ? c.discount_amount : 1,
-                is_spin_prize: c.is_spin_prize,
-                spin_probability: Math.round(Number(c.spin_probability || 0)),
-                spin_color: c.spin_color,
-                spin_label: c.spin_label,
-                // Must include all required fields for upsert if acting as insert, but upgrades just update
-            }));
-            const { error } = await supabase.from('coupons').upsert(updates);
-            if (error) throw error;
-            toast.success('Beállítások mentve');
-            setIsWheelSettingsOpen(false);
-            fetchCoupons();
-        } catch (e: any) {
-            console.error(e);
-            toast.error('Hiba a mentésnél');
-        }
-    };
+
 
     // Simplified handlers for modal inputs...
     const updateForm = (field: string, value: any) => setFormData(prev => ({ ...prev, [field]: value }));
@@ -233,77 +152,7 @@ export default function AdminCouponsPage() {
         <div className="space-y-6">
             <h1 className="text-3xl font-bold text-stone-900">Kupon Kezelés</h1>
 
-            {/* Bulk Operations */}
-            <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                        <Ticket size={24} />
-                    </div>
-                    <div>
-                        <h2 className="text-lg font-semibold text-stone-900">Tömeges Műveletek</h2>
-                        <p className="text-sm text-stone-500">Gyorsműveletek a kuponok kezeléséhez</p>
-                    </div>
-                </div>
-                <div className="flex flex-wrap gap-3 mt-4">
-                    <ModernButton variant="secondary" onClick={() => setIsAssignModalOpen(true)}>
-                        <Gift size={16} className="mr-2" /> Kupon Kiosztása
-                    </ModernButton>
-                    <ModernButton variant="danger" onClick={handleDeleteExpired}>
-                        <Trash2 size={16} className="mr-2" /> Lejárt Kuponok Törlése
-                    </ModernButton>
-                </div>
-            </div>
 
-            {/* Wheel Prizes */}
-            <GlassCard className="p-6 bg-white border border-stone-200">
-                <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-pink-50 rounded-lg text-pink-500">
-                            <Gift size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-stone-900">Szerencsekerék Nyeremények</h2>
-                            <p className="text-sm text-stone-500">Aktív nyeremények a pörgetéshez</p>
-                        </div>
-                    </div>
-                    <ModernButton variant="secondary" onClick={() => setIsWheelSettingsOpen(true)}>
-                        Beállítások Kezelése
-                    </ModernButton>
-                </div>
-                <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-                    <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-stone-200 text-xs font-medium text-stone-500 uppercase tracking-wider bg-stone-50">
-                        <div className="col-span-4">Nyeremény</div>
-                        <div className="col-span-2 text-center">Típus</div>
-                        <div className="col-span-2 text-center">Esély</div>
-                        <div className="col-span-2 text-center">Szín</div>
-                        <div className="col-span-2 text-right">Művelet</div>
-                    </div>
-                    <div className="divide-y divide-stone-100">
-                        {coupons.filter(c => c.is_spin_prize).map((coupon) => (
-                            <div key={coupon.id} className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-stone-50 transition-colors">
-                                <div className="col-span-4">
-                                    <div className="font-medium text-stone-900 text-sm">{coupon.code}</div>
-                                    <div className="text-xs text-stone-500">{coupon.spin_label}</div>
-                                </div>
-                                <div className="col-span-2 text-center">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-                                        {coupon.discount_type === 'percentage' ? `${coupon.discount_amount}%` : `${coupon.discount_amount} Ft`}
-                                    </span>
-                                </div>
-                                <div className="col-span-2 text-center text-sm text-stone-600">{coupon.spin_probability}</div>
-                                <div className="col-span-2 flex justify-center">
-                                    <div className="w-6 h-6 rounded border border-stone-200 shadow-sm" style={{ backgroundColor: coupon.spin_color }}></div>
-                                </div>
-                                <div className="col-span-2 text-right">
-                                    <button onClick={() => setIsWheelSettingsOpen(true)} className="text-stone-400 hover:text-stone-900">
-                                        <ChevronRight size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </GlassCard>
 
             {/* Coupons List */}
             <div className="bg-white rounded-xl border border-stone-200 shadow-lg overflow-hidden">

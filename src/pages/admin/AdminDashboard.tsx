@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 import { Droplets, ShoppingBag, ShoppingCart, Users, LucideProps } from 'lucide-react';
+import AdminAnalytics from './AdminAnalytics';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -12,6 +13,8 @@ export default function AdminDashboard() {
     totalUsers: 0,
     totalUnreadedMessages: 0,
     totalOrders: 0,
+    totalPageViews: 0,
+    totalUniqueVisitors: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +48,20 @@ export default function AdminDashboard() {
           .from('orders')
           .select('*', { count: 'exact', head: true });
 
+        // Fetch Total Page Views
+        const { count: totalPageViews } = await supabase
+          .from('page_views')
+          .select('*', { count: 'exact', head: true });
+
+        // Fetch Total Unique Visitors (Distinct session_id)
+        // Note: For large datasets, this should be an RPC function. 
+        // For now, doing it client-side is acceptable for smaller scale.
+        const { data: uniqueData } = await supabase
+          .from('page_views')
+          .select('session_id');
+
+        const uniqueVisitors = new Set(uniqueData?.map(d => d.session_id).filter(Boolean)).size;
+
         setStats({
           newOrders: newOrders || 0,
           activeDrops: activeDrops || 0,
@@ -52,6 +69,8 @@ export default function AdminDashboard() {
           totalUsers: totalUsers || 0,
           totalUnreadedMessages: 0, // Placeholder until messages system is implemented
           totalOrders: totalOrders || 0,
+          totalPageViews: totalPageViews || 0,
+          totalUniqueVisitors: uniqueVisitors || 0,
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -80,7 +99,14 @@ export default function AdminDashboard() {
         <StatCard title="Felhasználók" value={loading ? '...' : stats.totalUsers} icon={Users} />
         <StatCard title="Olvasatlan Üzenetek" value={loading ? '...' : stats.totalUnreadedMessages} icon={Users} />
         <StatCard title="Összes eddigi rendelés" value={loading ? '...' : stats.totalOrders} icon={Users} />
+
+        {/* New Analytics Cards */}
+        <StatCard title="Összes Látogatás" value={loading ? '...' : stats.totalPageViews} icon={Users} />
+        <StatCard title="Összes Egyéni Látogató" value={loading ? '...' : stats.totalUniqueVisitors} icon={Users} />
       </div>
+
+      {/* Analytics Section */}
+      <AdminAnalytics />
 
     </div>
   );

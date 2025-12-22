@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import GlassCard from '@/components/ui/GlassCard';
 import ModernButton from '@/components/ui/ModernButton';
 import { Users, Trash2, Shield, Gift, Search, ChevronDown, ChevronUp, Phone, MapPin, X } from 'lucide-react';
 import { toast } from 'sonner';

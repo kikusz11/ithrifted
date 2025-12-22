@@ -1,5 +1,4 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import HeroStrip from '../components/HeroStrip';
 
@@ -18,7 +17,6 @@ export default function HomePage() {
   const [nextDrop, setNextDrop] = useState<Drop | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDropActive, setIsDropActive] = useState(false);
-  // const navigate = useNavigate();
 
   // Állapotok a feliratkozási űrlaphoz
   const [email, setEmail] = useState('');
@@ -170,9 +168,9 @@ export default function HomePage() {
 
   // A komponens JSX-e
   return (
-    <div className="bg-stone-900 text-white min-h-screen">
+    <div className="bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 min-h-screen">
       <section className="relative text-center py-20 md:py-32 px-4 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-stone-800 via-stone-700 to-neutral-800 opacity-90"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-stone-200 via-stone-300 to-stone-400 dark:from-stone-800 dark:via-stone-700 dark:to-neutral-800 opacity-90"></div>
         <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-stone-600 rounded-full filter blur-3xl opacity-10 animate-pulse"></div>
         <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-neutral-700 rounded-full filter blur-3xl opacity-10 animate-pulse delay-2000"></div>
         <div className="relative z-10">
@@ -185,10 +183,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-stone-800 py-16 px-4">
+      <section className="bg-stone-100 dark:bg-stone-800 py-16 px-4">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">Ne maradj le semmiről!</h2>
-          <p className="text-stone-400 mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 text-stone-900 dark:text-stone-100">Ne maradj le semmiről!</h2>
+          <p className="text-stone-600 dark:text-stone-400 mb-8">
             Kérj értesítést a következő drop eseményről, és legyél az elsők között.
           </p>
           <form onSubmit={handleSubscription} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
@@ -199,18 +197,18 @@ export default function HomePage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={formLoading}
-              className="flex-grow bg-stone-700 border border-stone-600 rounded-lg px-4 py-3 text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-500 transition duration-300"
+              className="flex-grow bg-stone-200 dark:bg-stone-700 border border-stone-300 dark:border-stone-600 rounded-lg px-4 py-3 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 dark:focus:ring-stone-400 transition duration-300"
             />
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-stone-100 hover:bg-white text-stone-900 font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:bg-gray-500"
+              className="bg-stone-800 dark:bg-stone-100 hover:bg-stone-900 dark:hover:bg-white text-white dark:text-stone-900 font-semibold py-3 px-6 rounded-lg transition duration-300 disabled:bg-gray-500"
             >
               {formLoading ? 'Küldés...' : 'Értesítést Kérek'}
             </button>
           </form>
-          {formMessage && <p className="text-green-400 mt-4">{formMessage}</p>}
-          {formError && <p className="text-red-400 mt-4">{formError}</p>}
+          {formMessage && <p className="text-green-500 dark:text-green-400 mt-4">{formMessage}</p>}
+          {formError && <p className="text-red-500 dark:text-red-400 mt-4">{formError}</p>}
           <p className="text-xs text-stone-500 mt-4">
             Nem küldünk spamet. Bármikor leiratkozhatsz.
           </p>
