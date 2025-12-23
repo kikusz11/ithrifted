@@ -64,27 +64,55 @@ export default function ClosedShopPage() {
     const [formError, setFormError] = useState('');
 
     useEffect(() => {
+        let isMounted = true;
+
         async function fetchNextDrop() {
             setLoading(true);
             const now = new Date().toISOString();
 
-            const { data: futureDrop, error } = await supabase
-                .from('drops')
-                .select('*')
-                .eq('is_active', true)
-                .gt('start_time', now)
-                .order('start_time', { ascending: true })
-                .limit(1)
-                .single();
+            try {
+                const { data: futureDrop, error } = await supabase
+                    .from('drops')
+                    .select('*')
+                    .eq('is_active', true)
+                    .gt('start_time', now)
+                    .order('start_time', { ascending: true })
+                    .limit(1)
+                    .single();
 
-            if (futureDrop) {
-                setNextDrop(futureDrop);
-            } else if (error && error.code !== 'PGRST116') {
-                console.error("Error fetching future drop:", error);
+                if (!isMounted) return;
+
+                if (futureDrop) {
+                    setNextDrop(futureDrop);
+                } else if (error && error.code !== 'PGRST116') {
+                    console.error("Error fetching future drop:", error);
+                }
+            } catch (err) {
+                console.error("Unexpected error fetching drop:", err);
+            } finally {
+                if (isMounted) setLoading(false);
             }
-            setLoading(false);
         }
+
         fetchNextDrop();
+
+        // Safety timeout in case Supabase hangs
+        const timeoutId = setTimeout(() => {
+            if (isMounted) {
+                setLoading((isLoading) => {
+                    if (isLoading) {
+                        console.warn('Drop fetch timed out, forcing default view');
+                        return false;
+                    }
+                    return isLoading;
+                });
+            }
+        }, 3000);
+
+        return () => {
+            isMounted = false;
+            clearTimeout(timeoutId);
+        };
     }, []);
 
     useEffect(() => {

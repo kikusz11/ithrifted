@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   // Amíg a bejelentkezési állapotot ellenőrizzük, egy üzenetet mutatunk
   if (loading) {
@@ -10,7 +10,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
 
-  const isAdmin = user?.user_metadata?.role === 'admin';
+  const isAdmin = profile?.is_admin || profile?.role === 'admin';
 
   // Ha a felhasználó nincs bejelentkezve VAGY nem admin, átirányítjuk a főoldalra.
   if (!user || !isAdmin) {

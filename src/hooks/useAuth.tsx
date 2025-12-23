@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 export interface Profile {
   id: string;
   is_admin?: boolean;
+  role?: string;
   // Itt adhatsz meg további profil mezőket, pl. username, avatar_url
 }
 
@@ -29,25 +30,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Figyeljük a bejelentkezési állapot változásait
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
 
-        // --- A JAVÍTÁS LÉNYEGE ---
-        // Nincs többé külön adatbázis-lekérdezés a profilhoz!
-        // A profilt közvetlenül a bejelentkezett felhasználó meta-adataiból építjük fel.
         if (currentUser) {
-          const userProfile: Profile = {
-            id: currentUser.id,
-            is_admin: currentUser.user_metadata?.role === 'admin',
-            // Itt további adatokat is hozzáadhatsz a meta-adatokból, ha szükséges
-            // pl. fullName: currentUser.user_metadata?.full_name
-          };
-          setProfile(userProfile);
+          try {
+            // Create a promise for the profile fetch
+            const profilePromise = supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', currentUser.id)
+              .single();
+
+            // Create a timeout promise (3 seconds)
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Profile fetch timeout')), 3000)
+            );
+
+            // Race them
+            const { data: profileData, error } = await Promise.race([
+              profilePromise,
+              timeoutPromise
+            ]) as any;
+
+            if (error) {
+              console.error('Error fetching profile:', error);
+              // Fail-safe: Keep existing profile if valid, otherwise fail to non-admin
+              setProfile(prev => (prev && prev.id === currentUser.id ? prev : { id: currentUser.id, is_admin: false }));
+            } else if (profileData) {
+              setProfile({
+                id: currentUser.id,
+                is_admin: profileData.role === 'admin',
+                ...profileData
+              });
+            }
+          } catch (err) {
+            console.warn('Profile check failed or timed out:', err);
+            // Fail-safe: Keep existing profile if valid, otherwise fail to non-admin
+            setProfile(prev => (prev && prev.id === currentUser.id ? prev : { id: currentUser.id, is_admin: false }));
+          }
         } else {
           setProfile(null);
         }
-        
+
         setLoading(false);
       }
     );

@@ -34,11 +34,12 @@ import UserOrdersPage from './pages/UserOrdersPage.tsx';
 import ClosedShopPage from './pages/ClosedShopPage';
 
 function App() {
-  const [isShopOpen, setIsShopOpen] = useState(true);
+  const [isShopOpen, setIsShopOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkShopStatus = async () => {
+      console.log('Checking shop status...');
       try {
         const now = new Date().toISOString();
         const { data, error } = await supabase
@@ -51,20 +52,34 @@ function App() {
 
         if (error) {
           console.error('Error checking shop status:', error);
-          // Default to open in case of error to avoid locking out
-          setIsShopOpen(true);
+          // Default to CLOSED in case of error to fail safe
+          setIsShopOpen(false);
         } else {
           setIsShopOpen(data && data.length > 0);
         }
       } catch (err) {
         console.error('Unexpected error checking shop status:', err);
-        setIsShopOpen(true);
+        setIsShopOpen(false);
       } finally {
+        console.log('Shop status check complete.');
         setLoading(false);
       }
     };
 
+    // Force load after 3 seconds if Supabase hangs
+    const timeout = setTimeout(() => {
+      setLoading((current) => {
+        if (current) {
+          console.warn('Shop status check timed out, forcing load.');
+          return false;
+        }
+        return current;
+      });
+    }, 3000);
+
     checkShopStatus();
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (loading) {

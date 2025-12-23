@@ -13,7 +13,7 @@ export default function ClosedShopFooter() {
                             <MapPin size={16} className="text-stone-500" />
                             <span>1132 Budapest Victor Hugo utca 2</span>
                         </p>
-                        <p>Adószám: 12345678-1-42</p>
+
                     </div>
                 </div>
 
