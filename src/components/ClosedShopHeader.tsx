@@ -37,12 +37,12 @@ export default function ClosedShopHeader() {
 
     return (
         <>
-            <header className="fixed top-0 left-0 right-0 z-40 bg-white/70 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 shadow-sm transition-colors duration-300">
+            <header className="fixed top-0 left-0 right-0 z-40 bg-white/70 backdrop-blur-md border-b border-stone-200 shadow-sm transition-colors duration-300">
                 <div className="container mx-auto flex justify-between items-center py-2 px-4 relative">
                     {/* Brand Text - Moved to Left */}
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center">
-                            <span className="text-3xl font-black text-stone-900 dark:text-white tracking-tighter whitespace-nowrap">
+                            <span className="text-3xl font-black text-stone-900 tracking-tighter whitespace-nowrap">
                                 ithrifted
                             </span>
                         </Link>
@@ -96,7 +96,7 @@ export default function ClosedShopHeader() {
 
                 {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-xl p-4 animate-fadeIn">
+                    <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-stone-200 shadow-xl p-4 animate-fadeIn">
                         <div className="flex flex-col gap-2">
                             {!user ? (
                                 <button

@@ -68,7 +68,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 flex items-center justify-center">Betöltés...</div>;
+    return <div className="min-h-screen bg-stone-50 text-stone-900 flex items-center justify-center">Betöltés...</div>;
   }
 
   return (
