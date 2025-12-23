@@ -480,6 +480,13 @@ export default function Header() {
             </form>
 
             <div className="flex flex-col gap-2">
+              {/* Theme Toggle for Mobile */}
+              <div className="flex items-center justify-between py-2">
+                <span className="text-stone-400">Téma</span>
+                <ThemeToggle />
+              </div>
+              <div className="border-t border-white/10 my-2"></div>
+
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300">Főoldal</Link>
               <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-stone-400 hover:text-stone-300">Bolt</Link>
 
