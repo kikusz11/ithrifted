@@ -14,7 +14,7 @@ import { CartProvider } from './contexts/CartContext.tsx';
 import { supabase } from './lib/supabaseClient';
 import { HelmetProvider } from 'react-helmet-async';
 import AnalyticsTracker from './components/AnalyticsTracker';
-import { ThemeProvider } from './contexts/ThemeContext';
+// ThemeProvider removed
 
 // Oldalak
 import HomePage from './pages/HomePage.tsx';
@@ -73,67 +73,65 @@ function App() {
 
   return (
     <CartProvider>
-      <ThemeProvider>
-        <HelmetProvider>
-          <Toaster position="bottom-right" richColors />
-          <BrowserRouter>
-            <AnalyticsTracker />
-            <Routes>
+      <HelmetProvider>
+        <Toaster position="bottom-right" richColors />
+        <BrowserRouter>
+          <AnalyticsTracker />
+          <Routes>
 
-              <Route path="/admin/*" element={
-                <ProtectedRoute>
-                  <AdminLayout>
+            <Route path="/admin/*" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <Routes>
+                    <Route path="/" element={<AdminDashboard />} />
+                    <Route path="/drops" element={<AdminDropsPage />} />
+                    <Route path="/products" element={<AdminProductsPage />} />
+                    <Route path="/orders" element={<AdminOrdersPage />} />
+                    <Route path="/users" element={<AdminUsersPage />} />
+                    <Route path="/coupons" element={<AdminCouponsPage />} />
+                    <Route path="/categories" element={<AdminCategoriesPage />} />
+                  </Routes>
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/*" element={
+              isShopOpen ? (
+                <div className="flex flex-col min-h-screen bg-stone-50 text-stone-900">
+                  <Header />
+                  <main className="flex-grow pt-24">
                     <Routes>
-                      <Route path="/" element={<AdminDashboard />} />
-                      <Route path="/drops" element={<AdminDropsPage />} />
-                      <Route path="/products" element={<AdminProductsPage />} />
-                      <Route path="/orders" element={<AdminOrdersPage />} />
-                      <Route path="/users" element={<AdminUsersPage />} />
-                      <Route path="/coupons" element={<AdminCouponsPage />} />
-                      <Route path="/categories" element={<AdminCategoriesPage />} />
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/profile" element={<ModernProfilePage />} />
+                      <Route path="/cart" element={<CartPage />} />
+                      <Route path="/checkout" element={<CheckoutPage />} />
+                      <Route path="/shop" element={<ShopPage />} />
+                      <Route path="/product/:id" element={<ProductDetailPage />} />
+                      <Route path="/orders" element={<UserOrdersPage />} />
                     </Routes>
-                  </AdminLayout>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/*" element={
-                isShopOpen ? (
-                  <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100">
-                    <Header />
-                    <main className="flex-grow pt-24">
-                      <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/profile" element={<ModernProfilePage />} />
-                        <Route path="/cart" element={<CartPage />} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path="/shop" element={<ShopPage />} />
-                        <Route path="/product/:id" element={<ProductDetailPage />} />
-                        <Route path="/orders" element={<UserOrdersPage />} />
-                      </Routes>
-                    </main>
-                    <SpinWheelWidget />
-                    <Footer />
-                  </div>
-                ) : (
-                  <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100">
-                    <ClosedShopHeader />
-                    <main className="flex-grow pt-14">
-                      <Routes>
-                        <Route path="/" element={<ClosedShopPage />} />
-                        <Route path="/profile" element={<ModernProfilePage />} />
-                        <Route path="/orders" element={<UserOrdersPage />} />
-                        {/* Redirect everything else to Closed Home */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                      </Routes>
-                    </main>
-                    <ClosedShopFooter />
-                  </div>
-                )
-              } />
-            </Routes >
-          </BrowserRouter >
-        </HelmetProvider >
-      </ThemeProvider>
+                  </main>
+                  <SpinWheelWidget />
+                  <Footer />
+                </div>
+              ) : (
+                <div className="flex flex-col min-h-screen bg-stone-50 text-stone-900">
+                  <ClosedShopHeader />
+                  <main className="flex-grow pt-14">
+                    <Routes>
+                      <Route path="/" element={<ClosedShopPage />} />
+                      <Route path="/profile" element={<ModernProfilePage />} />
+                      <Route path="/orders" element={<UserOrdersPage />} />
+                      {/* Redirect everything else to Closed Home */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </main>
+                  <ClosedShopFooter />
+                </div>
+              )
+            } />
+          </Routes >
+        </BrowserRouter >
+      </HelmetProvider >
     </CartProvider >
   );
 }
